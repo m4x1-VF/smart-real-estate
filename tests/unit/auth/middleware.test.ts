@@ -72,4 +72,24 @@ describe('middleware — auth gate', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('x-middleware-next')).toBe('1');
   });
+
+  it('redirects /signup to / when a valid session cookie exists', async () => {
+    getSessionCookieMock.mockReturnValue('valid-session-token');
+    const { middleware } = await import('@/middleware');
+    const request = createRequest('/signup');
+    const response = await middleware(request);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toContain('/');
+  });
+
+  it('allows access to /signup when no session cookie exists', async () => {
+    getSessionCookieMock.mockReturnValue(null);
+    const { middleware } = await import('@/middleware');
+    const request = createRequest('/signup');
+    const response = await middleware(request);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+  });
 });

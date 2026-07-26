@@ -3,6 +3,7 @@ import { betterAuth } from 'better-auth';
 import { PostgresJSDialect } from 'kysely-postgres-js';
 import { getDb } from '@/lib/db/client';
 import { dash } from '@better-auth/infra';
+import { buildSocialProviders } from '@/lib/auth/social-providers';
 
 export const auth = betterAuth({
   database: {
@@ -12,7 +13,9 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
   },
+  socialProviders: buildSocialProviders(),
   trustedOrigins: [
     'http://localhost:3000',
     ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS

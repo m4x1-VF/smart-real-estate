@@ -106,7 +106,7 @@
         "¿El registro requiere verificación de email (magic link / código) o es directo?"
       ],
       "sdd": true,
-      "status": "spec_ready"
+      "status": "done"
     }
   ]
 }

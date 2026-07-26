@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { authClient } from '@/lib/auth/client';
-import { loginSchema } from '@/lib/auth/schemas';
+import { signupSchema } from '@/lib/auth/schemas';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,7 +20,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
 
-    const parsed = loginSchema.safeParse({ email, password });
+    const parsed = signupSchema.safeParse({ name, email, password, confirmPassword });
     if (!parsed.success) {
       setError(parsed.error.issues[0].message);
       return;
@@ -26,14 +28,15 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    const { error } = await authClient.signIn.emailAndPassword({
+    const { error } = await authClient.signUp.emailAndPassword({
+      name,
       email,
       password,
       callbackURL: '/',
     });
 
     if (error) {
-      setError('Invalid email or password');
+      setError('An account with this email already exists');
       setIsLoading(false);
       return;
     }
@@ -64,10 +67,10 @@ export default function LoginPage() {
             </span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-[#162A28] mb-1.5">
-            Welcome to LuxeEstate
+            Create your account
           </h1>
           <p className="text-[#162A28]/60 text-sm">
-            Unlock exclusive properties worldwide.
+            Join LuxeEstate today
           </p>
         </div>
 
@@ -79,6 +82,14 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#006655]/20 focus:border-[#006655]"
+              required
+            />
             <input
               type="email"
               placeholder="Email address"
@@ -95,12 +106,20 @@ export default function LoginPage() {
               className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#006655]/20 focus:border-[#006655]"
               required
             />
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#006655]/20 focus:border-[#006655]"
+              required
+            />
             <button
               type="submit"
               disabled={isLoading}
               className="w-full bg-[#006655] text-white rounded-lg py-3.5 text-sm font-medium transition-all duration-200 hover:bg-[#004d40] focus:outline-none focus:ring-2 focus:ring-[#006655]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
 
@@ -158,12 +177,12 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-8 text-center text-[13px] text-[#6B7280]">
-            Don&apos;t have an account?{' '}
+            Already have an account?{' '}
             <Link
-              href="/signup"
+              href="/login"
               className="font-semibold text-[#006655] hover:text-[#004d40] transition-colors"
             >
-              Sign up
+              Sign in
             </Link>
           </p>
         </div>

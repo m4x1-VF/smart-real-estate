@@ -131,3 +131,45 @@
 **Próxima feature:** No hay features pendientes en `feature_list.json`. El usuario puede agregar nuevas features cuando quiera.
 
 ---
+
+## Sesión 2026-07-25 — `auth-ui` (feature #3) — DONE
+
+**Estado al cerrar:** feature #3 `done`. Implementación completa, reviewer aprobó.
+
+**Flujo SDD seguido:**
+1. Spec ya estaba en `spec_ready` (sesión anterior 2026-07-23)
+2. Humano aprobó spec
+3. `implementer` ejecutó T1–T15
+4. `reviewer` verificó trazabilidad R<n>↔test y aprobó
+
+**Decisiones técnicas:**
+- Zod v4.4.3 instalado (spec asumía v3). API difference: `.issues` en vez de `.errors`. Mismo comportamiento.
+- `buildSocialProviders()` es función pura — testable sin DB.
+- `requireEmailVerification: false` — registro directo sin verificación de email.
+- `/signup` reemplaza `/register` en middleware.
+
+**Archivos creados:**
+- `lib/auth/social-providers.ts` — función pura `buildSocialProviders()`
+- `lib/auth/schemas.ts` — Zod schemas `loginSchema`, `signupSchema` + tipos inferidos
+- `app/signup/page.tsx` — página de registro con form + social buttons
+- `tests/unit/auth/social-providers.test.ts` — 4 tests
+- `tests/unit/auth/schemas.test.ts` — 8 tests
+- `progress/impl_auth-ui.md` — trazabilidad R1–R17 → tests
+- `progress/review_auth-ui.md` — reporte de reviewer
+
+**Archivos modificados:**
+- `lib/auth/index.ts` — social providers + `requireEmailVerification: false`
+- `app/login/page.tsx` — form email/password + error handling social
+- `middleware.ts` — `/register` → `/signup`
+- `.env.template` — 4 vars OAuth añadidas
+- `package.json` — `zod` v4.4.3 añadido
+- `specs/auth-ui/tasks.md` — 15 tasks marcadas `[x]`
+- `feature_list.json` — status #3 → `done`
+
+**Verificación:**
+- `pnpm test:run` → 39 tests pasando (6 files)
+- `pnpm lint` → zero errors, zero warnings
+
+**Próxima feature:** No hay features pendientes. El usuario puede agregar nuevas features cuando quiera.
+
+---
