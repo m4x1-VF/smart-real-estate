@@ -1,0 +1,112 @@
+{
+  "project": "luxu-estate",
+  "description": "Plataforma inmobiliaria Next.js 16 + PostgreSQL (Neon). Migración en curso desde Supabase. Inventario de features gestionado con Spec Driven Development.",
+  "rules": {
+    "one_feature_at_a_time": true,
+    "require_tests_to_close": true,
+    "require_approved_spec_to_implement": true,
+    "valid_status": ["pending", "spec_ready", "in_progress", "done", "blocked"],
+    "sdd_required_when": "feature has \"sdd\": true",
+    "blocked_reason_required_when": "feature has \"status\": \"blocked\""
+  },
+  "features": [
+    {
+      "id": 1,
+      "name": "neon-db-migration",
+      "title": "Migrar capa de datos de Supabase a Neon (PostgreSQL)",
+      "description": "Migrar la capa de datos de la app desde Supabase a Neon (PostgreSQL gestionado). Reemplazar el cliente de Supabase (`@supabase/ssr` + `postgrest-js`) por un cliente Postgres directo contra la base Neon. El schema (2 tablas: `properties`, `user_roles`; 2 enums: `property_type`, `app_role`; 3 funciones: `is_admin`, `ensure_user_role`, `get_admin_users`) ya está definido y versionado en `db/migrations/001..005`. La seguridad pasa de RLS a server actions/route handlers. Auth, storage de imágenes y middleware quedan fuera de scope de esta feature; se abordan en features siguientes.",
+      "scope": "Solo capa de datos: cliente Postgres, conexión, queries, tipos. NO incluye auth, NO incluye storage, NO incluye middleware.",
+      "acceptance": [
+        "Las 5 migraciones SQL corren en orden en Neon sin errores (001_extensions → 002_enums → 003_properties → 004_user_roles → 005_functions).",
+        "La app lee propiedades desde Neon en `app/page.tsx` (reemplaza el `from('properties').select(...)` de Supabase).",
+        "La app lee el detalle de una propiedad por slug desde Neon en `app/properties/[slug]/page.tsx`.",
+        "El listado de admin (`/admin/properties`) lee y paginá desde Neon.",
+        "Las operaciones admin (crear, editar) escriben contra Neon vía server action.",
+        "El cliente de Supabase para datos ya no se usa en código de producto (`lib/supabase/{client,server}.ts` queda solo si lo usa auth).",
+        "`types/supabase.ts` se reemplaza o se mantiene como tipo legacy con un comentario de deprecación.",
+        "Variable de entorno `DATABASE_URL` documentada en `.env.template` (sin valor).",
+        "Tests unitarios del nuevo repositorio Postgres (o queries) pasan con `pnpm test`.",
+        "`docs/architecture.md` actualizado: sección de adaptadores refleja Neon, no Supabase."
+      ],
+      "out_of_scope": [
+        "Reemplazo de Supabase Auth (`better-auth`) — feature #2.",
+        "Migración de imágenes desde Supabase Storage a otro proveedor — feature aparte.",
+        "Cambio del `middleware.ts` para gate de admin — feature #2.",
+        "RLS / policies en Postgres — la seguridad vive en server actions."
+      ],
+      "decisions": [
+        "Cliente Postgres: `postgres-js` con tipos manuales (sin ORM).",
+        "Conexión: `postgres-js` con `connection_limit=1` (Node runtime, serverless-safe).",
+        "`lib/supabase/{client,server,middleware}.ts` y `@supabase/ssr` se PRESERVAN en esta feature (auth/storage los siguen usando). Se eliminan en feature #2 (better-auth-integration).",
+        "PropertyForm ignora los uploads nuevos de imagen en esta feature; mantiene URLs existentes. La migración de storage es feature aparte."
+      ],
+      "sdd": true,
+      "status": "done"
+    },
+    {
+      "id": 2,
+      "name": "better-auth-integration",
+      "title": "Integrar `better-auth` y gate de admin contra Neon",
+      "description": "Reemplazar Supabase Auth por `better-auth` como proveedor de identidad. La sesión de `better-auth` se valida en `middleware.ts` y, para rutas `/admin/*`, se cruza con `get_admin_users()` de Neon para autorizar. Los `user_roles` y la función `is_admin()` siguen siendo la fuente de verdad de roles; `better-auth` solo autentica, no autoriza.",
+      "scope": "Auth provider (`better-auth`), tablas y configuración de `better-auth`, middleware actualizado para refrescar sesión y gatear `/admin/*`. NO toca la capa de datos de propiedades (eso es la feature #1).",
+      "acceptance": [
+        "`better-auth` instalado y configurado; sus tablas viven en Neon vía la migración SQL que el spec genere.",
+        "`/admin/*` redirige a `/login` (o equivalente) si no hay sesión válida.",
+        "Un usuario logueado cuyo email está en `get_admin_users()` puede acceder a `/admin/*`; uno logueado que NO está, recibe 403.",
+        "Server actions admin obtienen el usuario actual vía `better-auth` (no Supabase).",
+        "`lib/supabase/{client,server,middleware}.ts` se eliminan si la feature #1 no lo hizo ya.",
+        "`docs/architecture.md` actualizado: sección de auth refleja `better-auth`."
+      ],
+      "out_of_scope": [
+        "Migración de propiedades a Neon — feature #1.",
+        "UI de login/registro pulida (basta con un form mínimo verificable en tests).",
+        "Recuperación de contraseña, OAuth social, MFA — extensiones futuras.",
+        "Migración de usuarios existentes desde `auth.users` de Supabase a `better-auth`."
+      ],
+      "decisions": [
+        "`better-auth` como proveedor (no Clerk, no NextAuth, no Supabase Auth).",
+        "Gate de admin: `middleware.ts` consulta `get_admin_users()` en Neon."
+      ],
+      "open_questions": [
+        "¿Las tablas de `better-auth` (`user`, `session`, `account`, `verification`) conviven en el mismo schema de Neon que `properties` y `user_roles`, o van a un schema separado?",
+        "¿`better-auth` usa driver HTTP o conexión TCP? En edge runtime solo HTTP."
+      ],
+      "sdd": true,
+      "status": "done"
+    },
+    {
+      "id": 3,
+      "name": "auth-ui",
+      "title": "UI de login, registro y social auth (Google/GitHub)",
+      "description": "Completar el flujo de autenticación de usuario: login con email/password, registro de nueva cuenta, y login social con Google y GitHub. Actualmente `/login` solo tiene botones sociales que fallan (providers no configurados) y `/signup` no existe (404). Se configuran los providers sociales en `lib/auth/index.ts`, se crea la página `/signup`, y se añade el form de email/password a ambas páginas.",
+      "scope": "Solo UI y configuración de providers sociales. NO toca middleware, NO toca gate de admin, NO toca migraciones de datos.",
+      "acceptance": [
+        "Providers Google y GitHub configurados en `lib/auth/index.ts` con variables de entorno.",
+        "Página `/login` funciona: form email/password + botones sociales (Google/GitHub) operativos.",
+        "Página `/signup` existe y funciona: form de registro email/password + botones sociales.",
+        "El usuario puede registrarse con email/password y recibir confirmación.",
+        "El usuario puede hacer login con email/password tras registrarse.",
+        "El usuario puede hacer login con Google (redirect + callback).",
+        "El usuario puede hacer login con GitHub (redirect + callback).",
+        "Tras login exitoso, el usuario es redirigido a `/` (o página anterior).",
+        "Manejo de errores visible (credenciales incorrectas, email duplicado, etc.).",
+        "Tests de integración del flujo auth pasan con `pnpm test`.",
+        "`docs/architecture.md` actualizado si cambia la sección de auth."
+      ],
+      "out_of_scope": [
+        "Recuperación de contraseña / reset de password.",
+        "MFA / 2FA.",
+        "OAuth social adicional (Facebook, Apple, etc.).",
+        "Perfil de usuario / edición de datos personales.",
+        "Migración de usuarios existentes desde Supabase."
+      ],
+      "decisions": [],
+      "open_questions": [
+        "¿Se usa el plugin `passkeys` de better-auth o solo email/password clásico?",
+        "¿El registro requiere verificación de email (magic link / código) o es directo?"
+      ],
+      "sdd": true,
+      "status": "spec_ready"
+    }
+  ]
+}

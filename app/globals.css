@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #eef6f6; /* Clear Day */
+  --foreground: #19322f; /* Nordic */
+
+  /* Custom Palette */
+  --nordic: #19322f;
+  --mosque: #006655;
+  --hint-of-green: #d9ecc8;
+  --clear-day: #eef6f6;
+  --nordic-muted: #5c706d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-nordic: var(--nordic);
+  --color-mosque: var(--mosque);
+  --color-hint-of-green: var(--hint-of-green);
+  --color-clear-day: var(--clear-day);
+  --color-nordic-muted: var(--nordic-muted);
+
+  --font-display: 'Inter', sans-serif;
+
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  --shadow-card:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
+.hide-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
