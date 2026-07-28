@@ -3,9 +3,12 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Property } from '@/types/db';
-import { saveProperty } from '@/app/admin/properties/actions';
+import { saveProperty, uploadImage } from '@/app/admin/properties/actions';
 import Image from 'next/image';
 import DynamicPropertyMap from '@/components/DynamicPropertyMap';
+
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 interface PropertyFormProps {
   initialData?: Property;
@@ -39,6 +42,10 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>(
     initialData?.images || [],
+  );
+
+  const [uploadingIndices, setUploadingIndices] = useState<Set<number>>(
+    new Set(),
   );
 
   const handleInputChange = (
@@ -82,17 +89,81 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
-      const newPreviewUrls = filesArray.map((file) =>
-        URL.createObjectURL(file),
-      );
-      setImagePreviewUrls((prev) => [...prev, ...newPreviewUrls]);
-      setFormData((prev) => ({
-        ...prev,
-        images: [...(prev.images || []), ...newPreviewUrls],
-      }));
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const filesArray = Array.from(e.target.files);
+    // Reset input so the same file can be re-selected
+    e.target.value = '';
+
+    for (const file of filesArray) {
+      // Client-side validation: MIME type
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        setError(
+          `Invalid file type "${file.name}". Accepted: JPEG, PNG, WEBP, GIF.`,
+        );
+        continue;
+      }
+
+      // Client-side validation: file size
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`File "${file.name}" exceeds maximum size of 5MB.`);
+        continue;
+      }
+
+      // Add placeholder (local preview) and track its index
+      const placeholderUrl = URL.createObjectURL(file);
+      const startIndex = imagePreviewUrls.length;
+
+      setImagePreviewUrls((prev) => [...prev, placeholderUrl]);
+      setUploadingIndices((prev) => new Set(prev).add(startIndex));
+
+      try {
+        const uploadFormData = new FormData();
+        uploadFormData.set('file', file);
+
+        const result = await uploadImage(uploadFormData);
+
+        // Replace placeholder URL with Cloudinary URL
+        setImagePreviewUrls((prev) =>
+          prev.map((url, i) => (i === startIndex ? result.url : url)),
+        );
+
+        // Add Cloudinary URL to formData.images
+        setFormData((prev) => {
+          const currentImages = [...(prev.images || [])];
+          currentImages[startIndex] = result.url;
+          return { ...prev, images: currentImages };
+        });
+      } catch (err) {
+        // Remove placeholder on error — recalculate index based on current state
+        setImagePreviewUrls((prev) => {
+          const idx = prev.indexOf(placeholderUrl);
+          if (idx === -1) return prev;
+          setUploadingIndices((s) => {
+            const next = new Set(s);
+            next.delete(idx);
+            return next;
+          });
+          return prev.filter((_, i) => i !== idx);
+        });
+        setFormData((prev) => {
+          // Remove the image at the same relative position
+          const images = prev.images || [];
+          return { ...prev, images: images.filter((url) => url !== placeholderUrl) };
+        });
+
+        const message =
+          err instanceof Error ? err.message : 'Failed to upload image.';
+        setError(message);
+      } finally {
+        // Clean up uploading state — find by placeholder URL position
+        setUploadingIndices((prev) => {
+          const next = new Set(prev);
+          next.delete(startIndex);
+          return next;
+        });
+      }
     }
   };
 
@@ -395,16 +466,30 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-nordic/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="w-8 h-8 rounded-full bg-white text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors shadow-sm"
-                      >
-                        <span className="material-icons text-sm">delete</span>
-                      </button>
-                    </div>
-                    {index === 0 && (
+                    {uploadingIndices.has(index) && (
+                      <div className="absolute inset-0 bg-nordic/50 flex items-center justify-center backdrop-blur-[1px]">
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="material-icons animate-spin text-white text-2xl">
+                            refresh
+                          </span>
+                          <span className="text-white text-xs font-medium font-sans">
+                            Uploading...
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {!uploadingIndices.has(index) && (
+                      <div className="absolute inset-0 bg-nordic/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="w-8 h-8 rounded-full bg-white text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors shadow-sm"
+                        >
+                          <span className="material-icons text-sm">delete</span>
+                        </button>
+                      </div>
+                    )}
+                    {index === 0 && !uploadingIndices.has(index) && (
                       <span className="absolute top-2 left-2 bg-mosque text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm font-sans uppercase tracking-wider">
                         Main
                       </span>

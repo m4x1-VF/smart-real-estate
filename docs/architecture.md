@@ -159,7 +159,7 @@ Las tres son `SECURITY DEFINER` con `search_path = public`. Reciben el usuario d
 - **`text` como PK en `user`** — better-auth genera IDs tipo nanoid. `user_roles.user_id` fue alterado de `uuid` a `text` para admitir FK nativa hacia `user.id`.
 - **FK en `user_roles.user_id`** → `user.id` ON DELETE CASCADE (migración 006).
 - **Sin RLS** — la seguridad vive en server actions y route handlers. Si más adelante se necesita aislamiento por usuario, se agrega RLS con la GUC `app.current_user_id`.
-- **Storage de imágenes externo** — `images` guarda URLs; los archivos viven fuera de Postgres (proveedor a definir).
+- **Storage de imágenes externo** — `images` guarda URLs de Cloudinary; los archivos viven en Cloudinary (signed upload desde server action, ver sección "Storage — Cloudinary" más abajo).
 
 ### Archivos de migración
 
@@ -228,6 +228,7 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 | Auth schemas (Zod) | `lib/auth/schemas.ts` | `loginSchema`, `signupSchema` — validación client-side de formularios. Tipos inferidos: `LoginInput`, `SignupInput`. |
 | Neon (postgres-js) | `lib/db/client.ts` | Conexión directa a Neon. `getDb()` retorna instancia singleton de `postgres-js`. |
 | i18n | `lib/i18n.ts` | Carga de diccionarios estáticos por locale (es/en/fr) |
+| Cloudinary | `lib/cloudinary.ts` | Signed upload de imágenes de propiedades. `getCloudinary()` (singleton configurado) + `uploadImageToCloudinary(buffer, mimeType) → secure_url`. Server-only. |
 
 #### better-auth — Detalles
 
@@ -246,6 +247,23 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 - Para cambiar locale, setear la cookie — `components/LanguageSelector.tsx` lo maneja.
 - `lib/i18n.ts` carga diccionarios de `data/dictionaries/{locale}.json`.
 - Diccionarios estáticos en `data/dictionaries/` — `en.json`, `es.json`, `fr.json`.
+
+#### Storage — Cloudinary
+
+- **Proveedor**: Cloudinary (signed upload desde server action).
+- **Variables de entorno**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. Leídas exclusivamente en el servidor (`lib/cloudinary.ts` con `import 'server-only'`). El API secret nunca se expone al cliente.
+- **Adaptador**: `lib/cloudinary.ts` exporta `getCloudinary()` (singleton configurado con env vars) y `uploadImageToCloudinary(fileBuffer, mimeType)` que retorna `secure_url`.
+- **Flujo de upload**:
+  1. Usuario selecciona archivo en `PropertyForm` (Client Component).
+  2. Validación client-side: tipo MIME (`image/jpeg`, `image/png`, `image/webp`, `image/gif`) y tamaño ≤ 5 MB.
+  3. Se invoca server action `uploadImage(formData)` (en `app/admin/properties/actions.ts`).
+  4. La server action verifica sesión admin (`auth.api.getSession` + `get_admin_users()`), valida MIME y tamaño server-side, convierte `File` a `Buffer`, y delega a `uploadImageToCloudinary`.
+  5. Cloudinary retorna `secure_url` (`https://res.cloudinary.com/<cloud>/...`).
+  6. `PropertyForm` reemplaza el placeholder local con la URL de Cloudinary y la agrega al array `images` del formulario.
+  7. Al guardar la propiedad, `handleSubmit` envía las URLs de Cloudinary en el campo `images` del payload hacia `saveProperty`.
+- **Carpeta en Cloudinary**: `luxu-estate/properties/`.
+- **Dominio de imágenes**: `res.cloudinary.com` registrado en `remotePatterns` de `next.config.ts` para `next/image`.
+- **Decisión de diseño**: Signed upload (no unsigned/upload preset). El API secret vive solo en el servidor. Alternativa descartada: upload directo desde el browser con upload preset (requería exponer cloud name + preset en el bundle, menos control server-side).
 
 #### Datos estáticos
 
@@ -392,7 +410,7 @@ middleware.ts / layout.tsx
 |------|--------|
 | Dominio (`types/`) | ✅ Definido — entidades y tipos puros |
 | Casos de Uso | 🔲 Lógica dispersa en componentes — pendiente de extracción |
-| Adaptadores (`lib/`) | ✅ better-auth + Neon (postgres-js) + i18n + Zod validation |
+| Adaptadores (`lib/`) | ✅ better-auth + Neon (postgres-js) + i18n + Zod validation + Cloudinary |
 | Externa (`app/`, `components/`) | ✅ Funcional completa |
 
 La migración planificada extraerá la lógica de negocio de Server/Client Components hacia casos de uso puros en una nueva carpeta (ej. `use-cases/` o `domain/use-cases/`), manteniendo los componentes como capa de presentación únicamente.

@@ -7,6 +7,19 @@ import {
   togglePropertyActive,
 } from '@/lib/db/properties';
 import type { NewPropertyInput, PropertyType } from '@/types/db';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { getDb } from '@/lib/db/client';
+import { uploadImageToCloudinary } from '@/lib/cloudinary';
+
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+] as const;
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 function getFormString(formData: FormData, key: string): string | undefined {
   const value = formData.get(key);
@@ -140,5 +153,50 @@ export async function togglePropertyActiveAction(
   } catch (err) {
     console.error('Failed to toggle property active state:', err);
     throw new Error('Failed to toggle property active state.');
+  }
+}
+
+async function verifyAdminSession(): Promise<void> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) throw new Error('Not authenticated');
+
+  const sql = getDb();
+  const admins = await sql<
+    { email: string }[]
+  >`SELECT u.email FROM user_roles ur JOIN public."user" u ON u.id = ur.user_id WHERE ur.role = 'admin'`;
+  const isAdmin = admins.some((a) => a.email === session.user.email);
+
+  if (!isAdmin) {
+    throw new Error('Not authorized');
+  }
+}
+
+export async function uploadImage(
+  formData: FormData,
+): Promise<{ url: string }> {
+  await verifyAdminSession();
+
+  const file = formData.get('file');
+  if (!file || !(file instanceof File)) {
+    throw new Error('No file provided.');
+  }
+
+  if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
+    throw new Error('Invalid file type. Accepted: JPEG, PNG, WEBP, GIF.');
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('File exceeds maximum size of 5MB.');
+  }
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const url = await uploadImageToCloudinary(buffer, file.type);
+    return { url };
+  } catch (err) {
+    console.error('Failed to upload image to Cloudinary:', err);
+    throw new Error('Failed to upload image to Cloudinary.');
   }
 }
