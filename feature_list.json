@@ -107,6 +107,41 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 4,
+      "name": "cloudinary-image-storage",
+      "title": "Integrar Cloudinary para storage de imágenes de propiedades",
+      "description": "Implementar el storage de imágenes de propiedades usando Cloudinary. Actualmente el PropertyForm tiene UI de upload (file input + drag & drop) pero solo genera previews locales con URL.createObjectURL — no sube a ningún lado. Se debe crear una server action que suba las imágenes a Cloudinary (signed upload, el API secret nunca toca el cliente), integrar el flujo de upload en PropertyForm, y configurar next.config.ts para permitir imágenes desde el dominio de Cloudinary.",
+      "scope": "Server action de upload, integración en PropertyForm, configuración de next.config.ts y variables de entorno. NO incluye migración de imágenes existentes, NO incluye avatares de usuario.",
+      "acceptance": [
+        "Server action `uploadImage` que sube una imagen a Cloudinary usando signed upload (API key + secret en servidor).",
+        "PropertyForm sube imágenes a Cloudinary al seleccionarlas y muestra la URL devuelta.",
+        "Las URLs de Cloudinary se guardan en el campo `images` de la propiedad al crear/editar.",
+        "next.config.ts permite imágenes desde `res.cloudinary.com`.",
+        "Variables de entorno `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` documentadas en `.env.template` (sin valor).",
+        "Manejo de errores visible (tamaño máximo, formato inválido, error de upload).",
+        "Tests unitarios del server action de upload pasan con `pnpm test`.",
+        "`docs/architecture.md` actualizado: sección de storage refleja Cloudinary."
+      ],
+      "out_of_scope": [
+        "Migración de imágenes existentes (URLs de Unsplash/Google ya en la base).",
+        "Avatares de usuario — feature aparte.",
+        "Optimizaciones de Cloudinary (transformaciones, responsive images).",
+        "Eliminación de imágenes de Cloudinary al borrar una propiedad.",
+        "Múltiples uploads en paralelo con progress bar."
+      ],
+      "decisions": [
+        "Cloudinary como proveedor de storage (no AWS S3, no Vercel Blob).",
+        "Signed upload desde server action (API secret nunca en cliente).",
+        "Cloud name: ijoagion"
+      ],
+      "open_questions": [
+        "¿Se usa el SDK de Cloudinary (`cloudinary`) o la REST API directa?",
+        "¿Se aplica alguna transformación automática (resize, calidad) al subir?"
+      ],
+      "sdd": true,
+      "status": "spec_ready"
     }
   ]
 }
