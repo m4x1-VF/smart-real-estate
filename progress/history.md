@@ -3,6 +3,46 @@
 > Cada vez que se cierra una sesión, su resumen se añade aquí.
 > No edites entradas anteriores. Solo añades al final.
 
+## Sesión 2026-07-27 — Bugfixes post-migración y mejoras UX
+
+**Feature:** Maintenance / Bugfixes
+**Estado:** DONE
+
+### Cambios realizados
+
+1. **Migración 007 - CamelCase para better-auth**
+   - Problema: better-auth espera columnas en camelCase (`expiresAt`, `createdAt`, `userId`, etc.) pero la migración 006 las creó en snake_case
+   - Solución: Migración 007 renombra todas las columnas afectadas en tablas `user`, `session`, `account`, `verification`
+   - Archivo: `db/migrations/007_auth_tables_camel_case.sql`
+
+2. **Fix endpoint de registro**
+   - Problema: `authClient.signUp.emailAndPassword()` enviaba a `/sign-up/email-and-password` (404)
+   - Solución: Cambiar a `authClient.signUp.email()` que es el endpoint correcto de better-auth
+   - Archivos: `app/signup/page.tsx`, `app/login/page.tsx`
+
+3. **Avatares por defecto**
+   - Problema: Usuarios sin imagen no tenían avatar
+   - Solución: Crear función `generateInitialsAvatar()` que genera SVG con iniciales del usuario
+   - Background fijo: `#19322F` (color de la marca)
+   - Archivos: `lib/utils/avatar.ts`, `components/Navbar.tsx`, `components/admin/AdminNav.tsx`
+
+4. **Fix imagen rota en property cards**
+   - Problema: `CollectionCard` y `PropertyCard` fallaban cuando `images[0]` no existía
+   - Solución: Validar existencia de imagen y mostrar placeholder con ícono de casa
+   - Archivos: `components/ui/CollectionCard.tsx`, `components/ui/PropertyCard.tsx`
+
+5. **Fix PropertyForm - imágenes no se guardaban**
+   - Problema: `handleImageChange` no actualizaba `formData.images`
+   - Solución: Agregar actualización de estado para incluir las URLs de las imágenes
+   - Archivo: `components/admin/PropertyForm.tsx`
+
+6. **Asignar rol admin**
+   - Usuario `maxi.vilarino@gmail.com` asignado como admin en tabla `user_roles`
+
+### Pendiente
+
+- **Storage de imágenes**: Actualmente las URLs son blobs temporales del navegador. Necesita implementación de storage real (Supabase Storage, S3, Cloudinary, etc.)
+
 ---
 
 ## Sesión 2026-07-21 — `neon-db-migration` (feature #1) — DONE

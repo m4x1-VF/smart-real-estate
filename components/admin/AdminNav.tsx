@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { authClient } from '@/lib/auth/client';
+import { generateInitialsAvatar } from '@/lib/utils/avatar';
 
 interface AdminNavUser {
   id: string;
@@ -52,7 +53,7 @@ export default function AdminNav({ user }: AdminNavProps) {
     return user.email ? user.email.charAt(0).toUpperCase() : 'U';
   };
 
-  const avatarUrl = user.image;
+  const avatarUrl = user.image || generateInitialsAvatar(user.name || '', user.email || '');
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-nordic/5 px-4 sm:px-6 lg:px-8 backdrop-blur-md bg-opacity-90">

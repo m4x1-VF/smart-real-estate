@@ -89,6 +89,10 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         URL.createObjectURL(file),
       );
       setImagePreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+      setFormData((prev) => ({
+        ...prev,
+        images: [...(prev.images || []), ...newPreviewUrls],
+      }));
     }
   };
 

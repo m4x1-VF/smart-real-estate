@@ -13,13 +13,19 @@ const CollectionCard = ({ collection }: CollectionCardProps) => {
       className="block group relative rounded-xl overflow-hidden shadow-soft bg-white cursor-pointer"
     >
       {/* Image Container */}
-      <div className="aspect-4/3 w-full overflow-hidden relative">
-        <Image
-          src={collection.images[0]}
-          alt={collection.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+      <div className="aspect-4/3 w-full overflow-hidden relative bg-gray-100">
+        {collection.images[0] ? (
+          <Image
+            src={collection.images[0]}
+            alt={collection.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="material-icons text-6xl text-gray-300">home</span>
+          </div>
+        )}
 
         {/* Tag */}
         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-nordic">

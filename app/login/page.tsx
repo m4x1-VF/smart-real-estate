@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    const { error } = await authClient.signIn.emailAndPassword({
+    const { error } = await authClient.signIn.email({
       email,
       password,
       callbackURL: '/',

@@ -13,13 +13,19 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer h-full flex flex-col"
     >
       {/* Image Container */}
-      <div className="relative aspect-4/3 overflow-hidden">
-        <Image
-          src={property.images[0]}
-          alt={property.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+      <div className="relative aspect-4/3 overflow-hidden bg-gray-100">
+        {property.images[0] ? (
+          <Image
+            src={property.images[0]}
+            alt={property.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="material-icons text-6xl text-gray-300">home</span>
+          </div>
+        )}
 
         {/* Favorite Button */}
         <button className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-colors text-nordic z-10">

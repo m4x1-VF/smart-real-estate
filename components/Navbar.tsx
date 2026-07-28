@@ -6,6 +6,7 @@ import LanguageSelector from './LanguageSelector';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import LogoutButton from './LogoutButton';
+import { generateInitialsAvatar } from '@/lib/utils/avatar';
 
 const Navbar = async () => {
   const cookieStore = await cookies();
@@ -83,7 +84,7 @@ const Navbar = async () => {
                     <Image
                       src={
                         user.image ||
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuCAWhQZ663Bd08kmzjbOPmUk4UIxYooNONShMEFXLR-DtmVi6Oz-TiaY77SPwFk7g0OobkeZEOMvt6v29mSOD0Xm2g95WbBG3ZjWXmiABOUwGUyLOySRfVDo-JTXQ0-gtwjWxbmue0qDm91m-zEOEZwAW6iRFB1qC1bAU-wkjxm67Sbztq8w7srHkFT9bVEC86qG-FzhOBTomhAurNRmx9l8Yfqabk328NfdKuVLckgCdaPsNFE3yN65MeoRi05GA_gXIMwG4YDIeA'
+                        generateInitialsAvatar(user.name || '', user.email || '')
                       }
                       alt="Profile"
                       fill
