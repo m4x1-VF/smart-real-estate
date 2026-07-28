@@ -3,6 +3,33 @@
 > Cada vez que se cierra una sesión, su resumen se añade aquí.
 > No edites entradas anteriores. Solo añades al final.
 
+## Sesión 2026-07-28 — `image-optimization` (feature #5) — DONE
+
+**Estado al cerrar:** feature #5 `done`. 5/5 tareas completadas.
+
+### Cambios realizados
+
+1. **Función de optimización** (`lib/optimize-image.ts`)
+   - `optimizeImage(file: File): Promise<Blob>` usando Canvas API
+   - Redimensiona a max 1920px manteniendo aspect ratio
+   - Comprime a JPEG 85% de calidad
+   - Reduce imágenes de ~1.8MB a ~300-500KB
+
+2. **Integración en PropertyForm** (`components/admin/PropertyForm.tsx`)
+   - Optimización antes de llamar `uploadImage` server action
+   - Preview muestra imagen optimizada
+   - Manejo de errores: si falla optimización, no sube
+
+3. **Tests unitarios** (`tests/unit/optimize-image.test.ts`)
+   - 10 tests: resize grande, no resize pequeño, calidad JPEG, error handling
+
+### Verificación
+- Tests: 54/54 pasan
+- Build: exitoso
+- Lint: limpio
+
+---
+
 ## Sesión 2026-07-28 — `cloudinary-image-storage` (feature #4) — DONE
 
 **Estado al cerrar:** feature #4 `done`. 10/10 tareas completadas.

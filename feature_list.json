@@ -142,6 +142,42 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 5,
+      "name": "image-optimization",
+      "title": "Optimización de imágenes en cliente antes de subir a Cloudinary",
+      "description": "Las imágenes subidas a Cloudinary pesan demasiado (1.8MB+). Se debe implementar optimización en el navegador usando Canvas API antes de enviar a la server action: redimensionar a máximo 1920px (ancho o alto manteniendo aspect ratio) y comprimir JPEG al 85% de calidad. Esto reduce el tamaño a ~300-500KB manteniendo calidad visual aceptable para propiedades inmobiliarias, mejora velocidad de upload y reduce consumo de storage.",
+      "scope": "Utilidad de optimización de imágenes, integración en PropertyForm antes del upload. NO incluye optimización en servidor, NO incluye transformaciones Cloudinary al servir.",
+      "acceptance": [
+        "Función `optimizeImage()` que redimensiona y comprime imágenes usando Canvas API.",
+        "Imágenes mayores a 1920px se redimensionan manteniendo aspect ratio.",
+        "Imágenes se comprimen a JPEG 85% de calidad.",
+        "PropertyForm aplica optimización antes de llamar a `uploadImage` server action.",
+        "Tamaño típico de imagen optimizada: 300-500KB (desde 1-2MB original).",
+        "Preview en PropertyForm muestra la imagen optimizada (no la original).",
+        "Tests unitarios de `optimizeImage()` pasan con `pnpm test`.",
+        "No rompe el flujo existente de upload a Cloudinary."
+      ],
+      "out_of_scope": [
+        "Optimización en servidor (sharp/jimp).",
+        "Transformaciones Cloudinary al servir (f_auto, q_auto).",
+        "Optimización de imágenes ya subidas.",
+        "Soporte para formatos WebP/AVIF (solo JPEG).",
+        "Progress bar durante optimización."
+      ],
+      "decisions": [
+        "Optimización en cliente (Canvas API) para reducir upload time y storage.",
+        "Max dimension: 1920px (suficiente para pantallas 4K).",
+        "Calidad JPEG: 85% (balance calidad/tamaño).",
+        "No tocar server action ni adaptador Cloudinary."
+      ],
+      "open_questions": [
+        "¿Se aplica optimización a todas las imágenes o solo si superan cierto tamaño?",
+        "¿Se preserva el nombre original del archivo o se genera uno nuevo?"
+      ],
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

@@ -7,6 +7,8 @@ import { saveProperty, uploadImage } from '@/app/admin/properties/actions';
 import Image from 'next/image';
 import DynamicPropertyMap from '@/components/DynamicPropertyMap';
 
+import { optimizeImage } from '@/lib/optimize-image';
+
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -111,8 +113,25 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         continue;
       }
 
+      // Optimize image before upload
+      let optimizedBlob: Blob;
+      try {
+        optimizedBlob = await optimizeImage(file);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to optimize image.';
+        setError(message);
+        continue;
+      }
+
+      // Build optimized file with new name
+      const basename = file.name.replace(/\.[^/.]+$/, ''); // remove extension
+      const optimizedFile = new File([optimizedBlob], `${basename}-optimized.jpg`, {
+        type: 'image/jpeg',
+      });
+
       // Add placeholder (local preview) and track its index
-      const placeholderUrl = URL.createObjectURL(file);
+      const placeholderUrl = URL.createObjectURL(optimizedBlob);
       const startIndex = imagePreviewUrls.length;
 
       setImagePreviewUrls((prev) => [...prev, placeholderUrl]);
@@ -120,7 +139,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
       try {
         const uploadFormData = new FormData();
-        uploadFormData.set('file', file);
+        uploadFormData.set('file', optimizedFile);
 
         const result = await uploadImage(uploadFormData);
 
