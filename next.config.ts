@@ -23,7 +23,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'sjlojbdoihgappqtmads.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
 };
 
