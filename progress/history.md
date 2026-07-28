@@ -3,6 +3,41 @@
 > Cada vez que se cierra una sesión, su resumen se añade aquí.
 > No edites entradas anteriores. Solo añades al final.
 
+## Sesión 2026-07-28 — `cloudinary-image-storage` (feature #4) — DONE
+
+**Estado al cerrar:** feature #4 `done`. 10/10 tareas completadas.
+
+### Cambios realizados
+
+1. **Adaptador Cloudinary** (`lib/cloudinary.ts`)
+   - SDK configurado con variables de entorno
+   - Función `uploadImageToCloudinary()` con validación MIME + tamaño
+
+2. **Server action `uploadImage`** (`app/admin/properties/actions.ts`)
+   - Signed upload desde servidor (API secret nunca en cliente)
+   - Autenticación requerida (verifyAdminSession)
+
+3. **Integración en PropertyForm** (`components/admin/PropertyForm.tsx`)
+   - Upload real a Cloudinary al seleccionar imágenes
+   - Spinner overlay durante upload
+   - Manejo de errores (remueve placeholder + muestra banner)
+
+4. **Configuración Next.js** (`next.config.ts`)
+   - Dominio `res.cloudinary.com` agregado a remotePatterns
+
+5. **Tests unitarios** (`tests/unit/cloudinary.test.ts`)
+   - 5 tests: success, MIME inválido, >5MB, error Cloudinary, no auth
+
+6. **Documentación** (`docs/architecture.md`)
+   - Sección "Storage — Cloudinary" con flujo completo
+
+### Verificación
+- Tests: 44/44 pasan
+- Build: exitoso
+- Lint: limpio
+
+---
+
 ## Sesión 2026-07-27 — Bugfixes post-migración y mejoras UX
 
 **Feature:** Maintenance / Bugfixes

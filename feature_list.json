@@ -141,7 +141,7 @@
         "¿Se aplica alguna transformación automática (resize, calidad) al subir?"
       ],
       "sdd": true,
-      "status": "spec_ready"
+      "status": "done"
     }
   ]
 }
