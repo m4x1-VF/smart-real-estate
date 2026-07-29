@@ -275,3 +275,61 @@
 **Próxima feature:** No hay features pendientes. El usuario puede agregar nuevas features cuando quiera.
 
 ---
+
+## Sesión 2026-07-29 — `user-profile` (feature #6) — DONE
+
+**Estado al cerrar:** feature #6 `done`. 15/15 tareas completadas.
+
+### Cambios realizados
+
+1. **Middleware** (`middleware.ts`)
+   - `/profile` agregado a rutas protegidas (redirect a `/login` si no hay sesión)
+
+2. **Schemas de validación** (`lib/auth/profile-schemas.ts`)
+   - `updateProfileSchema`: name min 1 char
+   - `changePasswordSchema`: currentPassword, newPassword min 8, confirmPassword match
+
+3. **Adaptador Cloudinary** (`lib/cloudinary.ts`)
+   - Parámetro opcional `options?: { folder?: string }` agregado
+   - Default: `luxu-estate/properties/`, avatar usa `luxu-estate/avatars/`
+
+4. **Server Actions** (`app/profile/actions.ts`)
+   - `updateProfile(formData)`: actualiza nombre vía `auth.api.updateUser()`
+   - `changePassword(formData)`: cambia contraseña verificando actual
+   - `uploadAvatar(formData)`: sube avatar a Cloudinary, actualiza `user.image`
+
+5. **Página /profile** (`app/profile/page.tsx`)
+   - Server Component con auth gate
+   - Pasa datos del usuario a `ProfileForm`
+
+6. **Componente ProfileForm** (`components/ProfileForm.tsx`)
+   - Client Component con 3 secciones: Personal Info, Avatar, Change Password
+   - Avatar: preview circular, upload con optimización client-side
+   - Manejo de errores con banners
+
+7. **Navbar** (`components/Navbar.tsx`)
+   - Avatar envuelto en `<Link href="/profile">` para navegación
+
+8. **Tests L2** (`tests/unit/profile-actions.test.ts`)
+   - 12 tests: updateProfile (3), changePassword (4), uploadAvatar (5)
+
+9. **Tests L3** (`tests/unit/profile-form.test.tsx`)
+   - 6 tests: renderizado, submit de formularios, manejo de errores
+
+10. **Documentación**
+    - `docs/architecture.md`: documentado /profile y server actions
+    - `progress/impl_user-profile.md`: trazabilidad R↔test completa
+
+### Verificación
+- Tests: 72/72 pasan (10 files)
+- Build: exitoso
+- Lint: limpio
+- Reviewer: aprobado (todos los checkpoints C1-C6 pasan)
+
+### Nuevo estándar de verificación
+- `docs/verification.md` actualizado: L2 (integración) y L3 (componentes) obligatorios
+- Regla: no se cierra una feature sin L2 + L3 verdes
+- Configurado: happy-dom + @testing-library/react + @testing-library/jest-dom + @testing-library/user-event
+
+---
+

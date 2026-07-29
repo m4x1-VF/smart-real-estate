@@ -79,7 +79,7 @@ const Navbar = async () => {
             {/* Profile */}
             {user ? (
               <div className="flex items-center">
-                <button className="flex items-center gap-2 pl-2 border-l border-nordic/10 ml-2">
+                <Link href="/profile" className="flex items-center gap-2 pl-2 border-l border-nordic/10 ml-2">
                   <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-mosque transition-all relative">
                     <Image
                       src={
@@ -91,7 +91,7 @@ const Navbar = async () => {
                       className="object-cover"
                     />
                   </div>
-                </button>
+                </Link>
                 <div className="ml-2 pl-2 border-l border-nordic/10 flex items-center">
                   <LogoutButton />
                 </div>

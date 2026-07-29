@@ -215,6 +215,9 @@ Actualmente la lógica de aplicación **reside inline en Server Components y Cli
 | Gestionar sesión de autenticación | `components/LogoutButton.tsx` | Sign out (better-auth) |
 | Login (email/password + social) | `app/login/page.tsx` | Zod validation + `authClient.signIn.emailAndPassword()` / `authClient.signIn.social()` |
 | Registro (email/password + social) | `app/signup/page.tsx` | Zod validation + `authClient.signUp.emailAndPassword()` / `authClient.signIn.social()` |
+| Actualizar perfil de usuario | `app/profile/actions.ts` | `updateProfile(formData)` — actualiza nombre vía `auth.api.updateUser()` |
+| Cambiar contraseña | `app/profile/actions.ts` | `changePassword(formData)` — verifica contraseña actual, aplica nueva vía `auth.api.changePassword()` |
+| Subir avatar | `app/profile/actions.ts` | `uploadAvatar(formData)` — valida MIME/tamaño, sube a Cloudinary (`luxu-estate/avatars/`), actualiza `user.image` |
 
 ### 3. Capa de Adaptadores (`lib/`)
 
@@ -226,6 +229,7 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 | better-auth Client | `lib/auth/client.ts` | `createAuthClient()` de `better-auth/react`. Para Client Components. Exporta `authClient`. |
 | Social providers | `lib/auth/social-providers.ts` | Función pura `buildSocialProviders()` — lee env vars de Google/GitHub y retorna config para `betterAuth()`. |
 | Auth schemas (Zod) | `lib/auth/schemas.ts` | `loginSchema`, `signupSchema` — validación client-side de formularios. Tipos inferidos: `LoginInput`, `SignupInput`. |
+| Profile schemas (Zod) | `lib/auth/profile-schemas.ts` | `updateProfileSchema`, `changePasswordSchema` — validación de perfil y cambio de contraseña. Tipos inferidos: `UpdateProfileInput`, `ChangePasswordInput`. |
 | Neon (postgres-js) | `lib/db/client.ts` | Conexión directa a Neon. `getDb()` retorna instancia singleton de `postgres-js`. |
 | i18n | `lib/i18n.ts` | Carga de diccionarios estáticos por locale (es/en/fr) |
 | Cloudinary | `lib/cloudinary.ts` | Signed upload de imágenes de propiedades. `getCloudinary()` (singleton configurado) + `uploadImageToCloudinary(buffer, mimeType) → secure_url`. Server-only. |
@@ -252,7 +256,7 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 
 - **Proveedor**: Cloudinary (signed upload desde server action).
 - **Variables de entorno**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. Leídas exclusivamente en el servidor (`lib/cloudinary.ts` con `import 'server-only'`). El API secret nunca se expone al cliente.
-- **Adaptador**: `lib/cloudinary.ts` exporta `getCloudinary()` (singleton configurado con env vars) y `uploadImageToCloudinary(fileBuffer, mimeType)` que retorna `secure_url`.
+- **Adaptador**: `lib/cloudinary.ts` exporta `getCloudinary()` (singleton configurado con env vars) y `uploadImageToCloudinary(fileBuffer, mimeType, options?)` que retorna `secure_url`. El parámetro opcional `options.folder` permite especificar la carpeta de destino (default: `'luxu-estate/properties/'`). Para avatares de usuario se usa `'luxu-estate/avatars/'`.
 - **Flujo de upload**:
   1. Usuario selecciona archivo en `PropertyForm` (Client Component).
   2. Validación client-side: tipo MIME (`image/jpeg`, `image/png`, `image/webp`, `image/gif`) y tamaño ≤ 5 MB.
@@ -261,7 +265,7 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
   5. Cloudinary retorna `secure_url` (`https://res.cloudinary.com/<cloud>/...`).
   6. `PropertyForm` reemplaza el placeholder local con la URL de Cloudinary y la agrega al array `images` del formulario.
   7. Al guardar la propiedad, `handleSubmit` envía las URLs de Cloudinary en el campo `images` del payload hacia `saveProperty`.
-- **Carpeta en Cloudinary**: `luxu-estate/properties/`.
+- **Carpeta en Cloudinary**: `luxu-estate/properties/` (imágenes de propiedades) y `luxu-estate/avatars/` (avatares de usuario).
 - **Dominio de imágenes**: `res.cloudinary.com` registrado en `remotePatterns` de `next.config.ts` para `next/image`.
 - **Decisión de diseño**: Signed upload (no unsigned/upload preset). El API secret vive solo en el servidor. Alternativa descartada: upload directo desde el browser con upload preset (requería exponer cloud name + preset en el bundle, menos control server-side).
 
@@ -281,6 +285,9 @@ app/
   page.tsx                      # Home — SSR con filtros + paginación (PAGE_SIZE = 8, backend-driven)
   login/                        # Login (email/password + social: Google/GitHub) vía better-auth
   signup/                       # Registro (email/password + social: Google/GitHub) vía better-auth
+  profile/                      # Perfil de usuario (protegido)
+    page.tsx                    # Server Component — auth gate + datos del usuario
+    actions.ts                  # Server Actions: updateProfile, changePassword, uploadAvatar
   properties/[slug]/            # Detalle de propiedad (SSR)
   admin/                        # Panel admin (protegido)
     layout.tsx                  # Server-side auth gate (auth.api.getSession + get_admin_users)
@@ -306,6 +313,7 @@ components/
   admin/                        # Panel admin
     AdminNav.tsx
     PropertyForm.tsx            # Formulario crear/editar (sin librería de forms, solo useState)
+  ProfileForm.tsx               # Perfil de usuario (Client Component) — 3 secciones: info, avatar, password
   PropertyMap.tsx               # Mapa Leaflet — SOLO cliente, importar con next/dynamic(ssr: false)
 
 app/
@@ -319,9 +327,10 @@ app/
 
 1. Verifica firma HMAC de la cookie de sesión (sin llamada a DB — Edge-compatible)
 2. Redirige `/admin/*` sin cookie → `/login`
-3. Redirige `/login` con cookie → `/`
-4. Redirige `/signup` con cookie → `/`
-4. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
+3. Redirige `/profile` sin cookie → `/login`
+4. Redirige `/login` con cookie → `/`
+5. Redirige `/signup` con cookie → `/`
+6. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
 
 #### Estilo — Design Tokens (Tailwind v4)
 

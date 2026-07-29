@@ -178,6 +178,44 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 6,
+      "name": "user-profile",
+      "title": "Perfil de usuario: avatar, nombre y contraseña",
+      "description": "Permitir al usuario autenticado gestionar su perfil: subir/cambiar avatar, editar nombre y cambiar contraseña. La página /profile muestra el formulario con los datos actuales del usuario. El avatar se sube a Cloudinary (reutilizando el adaptador de feature #4) y se optimiza en cliente (reutilizando feature #5). El cambio de contraseña requiere confirmar la contraseña actual.",
+      "scope": "Página /profile, server actions para actualizar perfil y contraseña, integración con Cloudinary para avatar. NO incluye verificación de email, NO incluye eliminación de cuenta.",
+      "acceptance": [
+        "Página /profile accesible solo para usuarios autenticados (redirect a /login si no hay sesión).",
+        "El usuario puede ver su nombre y email actual.",
+        "El usuario puede editar su nombre y guardar los cambios.",
+        "El usuario puede subir un avatar (imagen) que se sube a Cloudinary.",
+        "El avatar se optimiza en cliente antes de subir (reutiliza optimizeImage).",
+        "El avatar se muestra en /profile y en el header/navbar.",
+        "El usuario puede cambiar su contraseña ingresando la contraseña actual.",
+        "El cambio de contraseña valida que la contraseña actual sea correcta.",
+        "La nueva contraseña debe cumplir las mismas reglas que el registro (min 8 chars).",
+        "Manejo de errores visible (contraseña incorrecta, validación fallida, error de upload).",
+        "Tests L2 (server actions) y L3 (componente ProfileForm) pasan.",
+        "Trazabilidad R↔test documentada."
+      ],
+      "out_of_scope": [
+        "Verificación de email al cambiar email.",
+        "Eliminación de cuenta.",
+        "Perfil público visible por otros usuarios.",
+        "Campos adicionales (bio, teléfono, etc.)."
+      ],
+      "decisions": [
+        "Avatar se sube a Cloudinary reutilizando el adaptador existente.",
+        "Avatar se optimiza en cliente reutilizando optimizeImage.",
+        "Cambio de contraseña requiere confirmar contraseña actual."
+      ],
+      "open_questions": [
+        "¿El avatar tiene un tamaño máximo diferente al de las imágenes de propiedades?",
+        "¿Se muestra el avatar en el header/navbar o solo en /profile?"
+      ],
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

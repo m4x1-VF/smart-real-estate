@@ -4,11 +4,12 @@ import { getSessionCookie } from 'better-auth/cookies';
 export async function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const isProfileRoute = request.nextUrl.pathname.startsWith('/profile');
   const isAuthRoute =
     request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/signup');
 
-  if (!sessionCookie && isAdminRoute) {
+  if (!sessionCookie && (isAdminRoute || isProfileRoute)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

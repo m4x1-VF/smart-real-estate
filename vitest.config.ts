@@ -11,7 +11,12 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['tests/**/*.test.ts', 'tests/**/*.spec.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx', 'tests/**/*.spec.ts', 'tests/**/*.spec.tsx'],
     environment: 'node',
+    setupFiles: ['./tests/setup.ts'],
+    environmentMatchGlobs: [
+      ['tests/integration/**/*.test.ts', 'happy-dom'],
+      ['tests/e2e/**/*.test.ts', 'happy-dom'],
+    ],
   },
 });

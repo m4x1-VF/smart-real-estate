@@ -18,12 +18,13 @@ export function getCloudinary(): typeof cloudinary {
 export async function uploadImageToCloudinary(
   fileBuffer: Buffer,
   mimeType: string,
+  options?: { folder?: string },
 ): Promise<string> {
   const cld = getCloudinary();
   const dataUri = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
 
   const result = await cld.uploader.upload(dataUri, {
-    folder: 'luxu-estate/properties/',
+    folder: options?.folder ?? 'luxu-estate/properties/',
   });
 
   return result.secure_url;
