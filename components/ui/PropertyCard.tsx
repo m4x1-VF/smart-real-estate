@@ -1,12 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Property } from '@/types/db';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 
 interface PropertyCardProps {
   property: Property;
+  isFavorited?: boolean;
 }
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, isFavorited = false }: PropertyCardProps) => {
   return (
     <Link
       href={`/properties/${property.slug || property.id}`}
@@ -28,11 +30,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         )}
 
         {/* Favorite Button */}
-        <button className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-colors text-nordic z-10">
-          <span className="material-icons text-lg font-material-icons">
-            favorite_border
-          </span>
-        </button>
+        <FavoriteButton
+          propertyId={property.id}
+          isFavorited={isFavorited}
+          position="top-3 right-3"
+          size="lg"
+        />
 
         {/* Type Tag */}
         <div

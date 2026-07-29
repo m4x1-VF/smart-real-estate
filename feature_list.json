@@ -216,6 +216,48 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 7,
+      "name": "property-favorites",
+      "title": "Propiedades favoritas con toggle de corazón y página de guardados",
+      "description": "Permitir a los usuarios autenticados marcar propiedades como favoritas usando el botón del corazón existente en PropertyCard y CollectionCard. Las propiedades marcadas mantienen el corazón relleno (icon 'favorite' vs 'favorite_border'). La página /saved (linkeada desde el navbar 'saved_homes') muestra las propiedades guardadas por el usuario. Implementa tabla 'favorites', server actions para toggle/listar, un FavoriteButton client component con estado optimista, y refactor de PropertyCard/CollectionCard para aceptar estado inicial de favorito.",
+      "scope": "Tabla favorites, server actions, FavoriteButton component, refactor de PropertyCard/CollectionCard, página /saved, link del navbar. NO incluye compartir, comparar propiedades,ni notificaciones de favoritos.",
+      "acceptance": [
+        "Tabla 'favorites' creada con FK a user.id (text) y properties.id (uuid), unique constraint en (user_id, property_id).",
+        "Server action toggleFavorite(propertyId) que añade o elimina un favorito según su estado actual.",
+        "Server action getFavoritePropertyIds(userId) que retorna los IDs de propiedades favoritas de un usuario.",
+        "Server action listFavoriteProperties(userId) que retorna las propiedades completas marcadas como favoritas.",
+        "FavoriteButton client component con estado optimista: al hacer click alterna el estado visual inmediatamente.",
+        "El corazón se muestra relleno ('favorite') si es favorito, outline ('favorite_border') si no lo es.",
+        "PropertyCard y CollectionCard reciben el estado inicial de favorito y usan FavoriteButton.",
+        "El click en el corazón NO navega al detalle de la propiedad (preventDefault + stopPropagation).",
+        "Si el usuario no está autenticado y hace click en el corazón, se redirige a /login.",
+        "Página /saved muestra las propiedades favoritas del usuario con PropertyCard.",
+        "Link 'saved_homes' del navbar apunta a /saved (desktop y mobile).",
+        "/saved redirige a /login si no hay sesión.",
+        "Tests L2 (server actions) y L3 (FavoriteButton) pasan.",
+        "Trazabilidad R↔test documentada."
+      ],
+      "out_of_scope": [
+        "Compartir propiedades favoritas.",
+        "Comparar propiedades.",
+        "Notificaciones cuando una propiedad favorita cambia de precio.",
+        "Exportar lista de favoritos.",
+        "Colecciones/categorías de favoritos."
+      ],
+      "decisions": [
+        "Tabla favorites con PK compuesta (user_id, property_id) — evita duplicados y permite ON CONFLICT.",
+        "Toggle con server action (no API route) consistente con el patrón del proyecto.",
+        "Estado optimista en FavoriteButton para respuesta visual inmediata.",
+        "Redirección a /login si usuario no autenticado intenta favoritar."
+      ],
+      "open_questions": [
+        "¿FavoriteButton necesita sessionId/initialFavorited pasado desde el Server Component, o consulta el estado por sí mismo?",
+        "¿La página /saved reutiliza el layout de la home (grid de PropertyCard) o usa un layout distinto?"
+      ],
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

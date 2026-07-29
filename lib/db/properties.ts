@@ -23,7 +23,7 @@ export interface ListPropertiesResult {
   totalCount: number;
 }
 
-type PropertyRow = {
+export type PropertyRow = {
   id: string;
   title: string;
   slug: string | null;
@@ -55,7 +55,7 @@ function toDateIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : value;
 }
 
-function mapRow(row: PropertyRow): Property {
+export function mapRow(row: PropertyRow): Property {
   return {
     id: row.id,
     title: row.title,
@@ -80,7 +80,7 @@ function mapRow(row: PropertyRow): Property {
   };
 }
 
-const PROPERTY_COLUMNS =
+export const PROPERTY_COLUMNS =
   'id, title, slug, description, price, type, location, lat, lng, ' +
   'beds, baths, parking, sqft, year_built, images, amenities, ' +
   'is_active, is_featured, is_new, created_at';

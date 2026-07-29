@@ -333,3 +333,77 @@
 
 ---
 
+## Sesión 2026-07-29 — `property-favorites` (feature #7) — DONE
+
+**Estado al cerrar:** feature #7 `done`. 28/28 tareas completadas.
+
+### Cambios realizados
+
+1. **Base de datos** (`db/migrations/008_favorites.sql`)
+   - Tabla `favorites` con PK compuesta `(user_id, property_id)`
+   - FK a `user.id` (text) y `properties.id` (uuid) con `ON DELETE CASCADE`
+   - Índice por `user_id`
+
+2. **Adaptador DB** (`lib/db/favorites.ts`)
+   - 5 funciones: `addFavorite`, `removeFavorite`, `isFavorite`, `getFavoritePropertyIds`, `listFavoriteProperties`
+   - Reutiliza `PROPERTY_COLUMNS` y `mapRow` de `lib/db/properties.ts`
+
+3. **Server actions** (`app/saved/actions.ts`)
+   - `toggleFavorite(propertyId)`: gate de auth, validación Zod, toggle con `isFavorite` → `addFavorite`/`removeFavorite`
+   - Wrappers para `getFavoritePropertyIds` y `listFavoriteProperties`
+
+4. **FavoriteButton** (`components/ui/FavoriteButton.tsx`)
+   - Client Component con estado optimista (`useState`)
+   - `preventDefault()` + `stopPropagation()` para no navegar al Link padre
+   - Icono relleno (`favorite`) vs outline (`favorite_border`) según estado
+   - Redirect a `/login` si falla por auth
+
+5. **Refactor de cards**
+   - `PropertyCard.tsx`: prop `isFavorited`, usa `FavoriteButton`
+   - `CollectionCard.tsx`: prop `isFavorited`, usa `FavoriteButton`
+
+6. **Estado desde Server Components**
+   - `app/page.tsx`: fetch `getFavoritePropertyIds`, pasa `favoriteIds` a `NewInMarket`
+   - `components/NewInMarket.tsx`: prop `favoriteIds`, pasa `isFavorited` a `PropertyCard`
+   - `components/FeaturedCollection.tsx`: fetch `getFavoritePropertyIds`, pasa `isFavorited` a `CollectionCard`
+
+7. **Página /saved** (`app/saved/page.tsx`)
+   - Auth gate (redirect a `/login` si no hay sesión)
+   - Grid de `PropertyCard` con `isFavorited={true}`
+   - Empty state si no hay favoritos
+
+8. **Navbar** (`components/Navbar.tsx`)
+   - Link `saved_homes` actualizado de `#` a `/saved` (desktop y mobile)
+
+9. **Middleware** (`middleware.ts`)
+   - `/saved` añadido al matcher de rutas protegidas
+
+10. **Tests L2** (server actions)
+    - `tests/integration/saved/toggleFavorite.test.ts` — 4 tests
+    - `tests/integration/saved/getFavoritePropertyIds.test.ts` — 2 tests
+    - `tests/integration/saved/listFavoriteProperties.test.ts` — 3 tests
+    - `tests/integration/saved/savedPage.test.tsx` — 3 tests
+    - `tests/unit/favorites/schemas.test.ts` — 5 tests
+
+11. **Tests L3** (componentes)
+    - `tests/integration/components/FavoriteButton.test.tsx` — 6 tests
+    - `tests/integration/components/PropertyCard.test.tsx` — 4 tests
+    - `tests/integration/components/Navbar.test.tsx` — 1 test
+
+12. **Documentación**
+    - `docs/architecture.md`: documentado tabla favorites, ruta /saved, FavoriteButton
+    - `progress/impl_property-favorites.md`: trazabilidad R↔test completa
+
+### Verificación
+- Tests: 100/100 pasan (18 files) — 54 previos + 46 nuevos
+- Build: exitoso
+- Ruta `/saved` generada
+- Reviewer: aprobado (todos los checkpoints C1-C6 pasan)
+
+### Decisiones técnicas
+- `useState` ordinario (no `useOptimistic` de React 19) — simplicidad y testabilidad
+- `/saved` filtra `is_active = true` (consistente con el feed público)
+- El detalle de propiedad no se tocó en esta feature (extensión futura)
+
+---
+

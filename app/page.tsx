@@ -3,8 +3,10 @@ import Hero from '@/components/Hero';
 import FeaturedCollection from '@/components/FeaturedCollection';
 import NewInMarket from '@/components/NewInMarket';
 import { listProperties } from '@/lib/db/properties';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
+import { auth } from '@/lib/auth';
+import { getFavoritePropertyIds } from '@/app/saved/actions';
 
 const PAGE_SIZE = 8;
 
@@ -24,6 +26,13 @@ export default async function Home({ searchParams }: HomePageProps) {
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'es';
   const dict = getDictionary(locale);
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  let favoriteIds: Set<string> | undefined;
+  if (session) {
+    const ids = await getFavoritePropertyIds(session.user.id);
+    favoriteIds = new Set(ids);
+  }
 
   const { page, location, minPrice, maxPrice, type, beds, baths } =
     await searchParams;
@@ -66,6 +75,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={PAGE_SIZE}
+          favoriteIds={favoriteIds}
         />
       </main>
     </>

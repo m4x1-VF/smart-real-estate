@@ -3,6 +3,9 @@ import { Collection } from '@/data/mockData';
 import CollectionCard from './ui/CollectionCard';
 import { getDb } from '@/lib/db/client';
 import type { CommonDict } from '@/types/i18n';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
+import { getFavoritePropertyIds } from '@/app/saved/actions';
 
 const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
   const sql = getDb();
@@ -35,6 +38,13 @@ const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
     tag: p.is_new ? 'New Arrival' : 'Exclusive',
   }));
 
+  const session = await auth.api.getSession({ headers: await headers() });
+  let favoriteIds: Set<string> | undefined;
+  if (session) {
+    const ids = await getFavoritePropertyIds(session.user.id);
+    favoriteIds = new Set(ids);
+  }
+
   return (
     <section className="mb-16">
       <div className="flex items-end justify-between mb-8">
@@ -59,7 +69,11 @@ const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {collections.map((collection) => (
-          <CollectionCard key={collection.id} collection={collection} />
+          <CollectionCard
+            key={collection.id}
+            collection={collection}
+            isFavorited={favoriteIds?.has(collection.id) ?? false}
+          />
         ))}
       </div>
     </section>

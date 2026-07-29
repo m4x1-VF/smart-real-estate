@@ -57,7 +57,7 @@ const Navbar = async () => {
               {dict.navbar.sell}
             </Link>
             <Link
-              href="#"
+              href="/saved"
               className="text-nordic/70 hover:text-nordic font-medium text-sm hover:border-b-2 hover:border-nordic/20 px-1 py-1 transition-all"
             >
               {dict.navbar.saved_homes}
@@ -132,7 +132,7 @@ const Navbar = async () => {
             {dict.navbar.sell}
           </Link>
           <Link
-            href="#"
+            href="/saved"
             className="block px-3 py-2 rounded-md text-base font-medium text-nordic hover:bg-black/5"
           >
             {dict.navbar.saved_homes}

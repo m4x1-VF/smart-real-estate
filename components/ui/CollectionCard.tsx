@@ -1,12 +1,14 @@
 import Image from 'next/image';
 import { Collection } from '@/data/mockData';
 import Link from 'next/link';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 
 interface CollectionCardProps {
   collection: Collection;
+  isFavorited?: boolean;
 }
 
-const CollectionCard = ({ collection }: CollectionCardProps) => {
+const CollectionCard = ({ collection, isFavorited = false }: CollectionCardProps) => {
   return (
     <Link
       href={`/properties/${collection.slug || collection.id}`}
@@ -33,11 +35,12 @@ const CollectionCard = ({ collection }: CollectionCardProps) => {
         </div>
 
         {/* Favorite Button */}
-        <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-nordic hover:bg-mosque hover:text-white transition-all z-10">
-          <span className="material-icons text-xl font-material-icons">
-            favorite_border
-          </span>
-        </button>
+        <FavoriteButton
+          propertyId={collection.id}
+          isFavorited={isFavorited}
+          position="top-4 right-4"
+          size="xl"
+        />
 
         {/* Gradient Overlay */}
         <div className="absolute bottom-0 inset-x-0 h-1/2 bg-linear-to-t from-black/60 to-transparent opacity-60"></div>

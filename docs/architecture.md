@@ -140,6 +140,18 @@ Tokens de verificación (email verification, password reset).
 | `created_at` | `timestamptz` | ❌ | `now()` | |
 | `updated_at` | `timestamptz` | ❌ | `now()` | |
 
+#### `favorites`
+
+Propiedades marcadas como favoritas por usuario. PK compuesta `(user_id, property_id)` actúa como UNIQUE natural y permite `INSERT ... ON CONFLICT DO NOTHING` para toggle idempotente.
+
+| Columna | Tipo | Nulo | Default | Notas |
+|---------|------|:----:|---------|-------|
+| `user_id` | `text` | ❌ | — | FK → `user.id` ON DELETE CASCADE |
+| `property_id` | `uuid` | ❌ | — | FK → `properties.id` ON DELETE CASCADE |
+| `created_at` | `timestamptz` | ❌ | `now()` | |
+
+**PK**: `(user_id, property_id)`. **Índices**: `favorites_user_id_idx` (user_id).
+
 ### Funciones SQL
 
 | Función | Returns | Estabilidad | Notas |
@@ -171,9 +183,10 @@ db/migrations/
   004_user_roles.sql      # tabla + índices
   005_functions.sql       # is_admin, ensure_user_role, get_admin_users
   006_auth_tables.sql     # tablas better-auth (user, session, account, verification) + FK user_roles → user + update funciones
+  008_favorites.sql       # tabla favorites (PK compuesta user_id + property_id, FK CASCADE)
 ```
 
-Orden de ejecución: `001 → 002 → 003 → 004 → 005 → 006`.
+Orden de ejecución: `001 → 002 → 003 → 004 → 005 → 006 → 008`.
 
 ## Clean Architecture Layers
 
@@ -231,6 +244,8 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 | Auth schemas (Zod) | `lib/auth/schemas.ts` | `loginSchema`, `signupSchema` — validación client-side de formularios. Tipos inferidos: `LoginInput`, `SignupInput`. |
 | Profile schemas (Zod) | `lib/auth/profile-schemas.ts` | `updateProfileSchema`, `changePasswordSchema` — validación de perfil y cambio de contraseña. Tipos inferidos: `UpdateProfileInput`, `ChangePasswordInput`. |
 | Neon (postgres-js) | `lib/db/client.ts` | Conexión directa a Neon. `getDb()` retorna instancia singleton de `postgres-js`. |
+| Favorites DB | `lib/db/favorites.ts` | Operaciones CRUD sobre tabla `favorites`: `addFavorite`, `removeFavorite`, `isFavorite`, `getFavoritePropertyIds`, `listFavoriteProperties`. Reutiliza `PROPERTY_COLUMNS` y `mapRow` de `properties.ts`. |
+| Favorites schemas (Zod) | `lib/favorites/schemas.ts` | `toggleFavoriteSchema` — validación de `propertyId` como UUID. Tipo inferido: `ToggleFavoriteInput`. |
 | i18n | `lib/i18n.ts` | Carga de diccionarios estáticos por locale (es/en/fr) |
 | Cloudinary | `lib/cloudinary.ts` | Signed upload de imágenes de propiedades. `getCloudinary()` (singleton configurado) + `uploadImageToCloudinary(buffer, mimeType) → secure_url`. Server-only. |
 
@@ -288,6 +303,9 @@ app/
   profile/                      # Perfil de usuario (protegido)
     page.tsx                    # Server Component — auth gate + datos del usuario
     actions.ts                  # Server Actions: updateProfile, changePassword, uploadAvatar
+  saved/                        # Propiedades favoritas del usuario (protegido)
+    page.tsx                    # Server Component — auth gate + grid de PropertyCards
+    actions.ts                  # Server Actions: toggleFavorite, getFavoritePropertyIds, listFavoriteProperties
   properties/[slug]/            # Detalle de propiedad (SSR)
   admin/                        # Panel admin (protegido)
     layout.tsx                  # Server-side auth gate (auth.api.getSession + get_admin_users)
@@ -303,6 +321,7 @@ components/
   ui/                           # Componentes compartidos
     PropertyCard.tsx
     CollectionCard.tsx
+    FavoriteButton.tsx          # Client Component — toggle optimista de favorito (useState, no useOptimistic)
     FilterModal.tsx
     LanguageSelector.tsx        # Selector de idioma (cookie NEXT_LOCALE)
     FeaturedCollection.tsx      # Colección destacada (SSR)
@@ -315,10 +334,6 @@ components/
     PropertyForm.tsx            # Formulario crear/editar (sin librería de forms, solo useState)
   ProfileForm.tsx               # Perfil de usuario (Client Component) — 3 secciones: info, avatar, password
   PropertyMap.tsx               # Mapa Leaflet — SOLO cliente, importar con next/dynamic(ssr: false)
-
-app/
-  login/page.tsx                # Login (email/password + social) — Client Component, validación Zod
-  signup/page.tsx               # Registro (email/password + social) — Client Component, validación Zod
 ```
 
 #### Middleware
@@ -328,9 +343,10 @@ app/
 1. Verifica firma HMAC de la cookie de sesión (sin llamada a DB — Edge-compatible)
 2. Redirige `/admin/*` sin cookie → `/login`
 3. Redirige `/profile` sin cookie → `/login`
-4. Redirige `/login` con cookie → `/`
-5. Redirige `/signup` con cookie → `/`
-6. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
+4. Redirige `/saved` sin cookie → `/login`
+5. Redirige `/login` con cookie → `/`
+6. Redirige `/signup` con cookie → `/`
+7. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
 
 #### Estilo — Design Tokens (Tailwind v4)
 

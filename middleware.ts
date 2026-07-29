@@ -5,11 +5,12 @@ export async function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
   const isProfileRoute = request.nextUrl.pathname.startsWith('/profile');
+  const isSavedRoute = request.nextUrl.pathname.startsWith('/saved');
   const isAuthRoute =
     request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/signup');
 
-  if (!sessionCookie && (isAdminRoute || isProfileRoute)) {
+  if (!sessionCookie && (isAdminRoute || isProfileRoute || isSavedRoute)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
