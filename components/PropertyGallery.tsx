@@ -8,12 +8,14 @@ interface PropertyGalleryProps {
   images: string[];
   title: string;
   dict: GalleryDict;
+  isFeatured?: boolean;
 }
 
 export default function PropertyGallery({
   images,
   title,
   dict,
+  isFeatured = false,
 }: PropertyGalleryProps) {
   const [activeImage, setActiveImage] = useState(0);
 
@@ -36,9 +38,11 @@ export default function PropertyGallery({
           priority
         />
         <div className="absolute top-4 left-4 flex gap-2">
-          <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-            {dict.premium}
-          </span>
+          {isFeatured && (
+            <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+              {dict.premium}
+            </span>
+          )}
         </div>
         <button className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-nordic px-4 py-2 rounded-lg text-sm font-medium shadow-lg backdrop-blur transition-all flex items-center gap-2">
           <span className="material-icons text-sm">grid_view</span>

@@ -57,7 +57,15 @@
       "parking": "Estacionamiento",
       "ac": "Aire Acondicionado",
       "wifi": "Wifi de Alta Velocidad",
-      "patio": "Patio / Terraza"
+      "patio": "Patio / Terraza",
+      "Swimming Pool": "Piscina",
+      "Garden": "Jardín",
+      "Air Conditioning": "Aire Acondicionado",
+      "Smart Home": "Casa Inteligente",
+      "Balcony": "Balcón",
+      "Gym": "Gimnasio",
+      "Security System": "Sistema de Seguridad",
+      "Elevator": "Ascensor"
     },
     "clear_all": "Limpiar todos los filtros",
     "show_homes": "Mostrar Propiedades",
@@ -96,6 +104,16 @@
     "calculate_mortgage": "Calcular Hipoteca",
     "map_unavailable": "Datos del mapa no disponibles",
     "top_rated_agent": "Agente Mejor Valorado",
-    "footer_rights": "© 2025 LuxeEstate Inc. Todos los derechos reservados."
+    "footer_rights": "© 2025 LuxeEstate Inc. Todos los derechos reservados.",
+    "amenity_labels": {
+      "Swimming Pool": "Piscina",
+      "Garden": "Jardín",
+      "Air Conditioning": "Aire Acondicionado",
+      "Smart Home": "Casa Inteligente",
+      "Balcony": "Balcón",
+      "Gym": "Gimnasio",
+      "Security System": "Sistema de Seguridad",
+      "Elevator": "Ascensor"
+    }
   }
 }

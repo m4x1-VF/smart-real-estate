@@ -21,14 +21,7 @@ export interface FiltersDict {
   bedrooms: string;
   bathrooms: string;
   amenities_title: string;
-  amenities: {
-    pool: string;
-    gym: string;
-    parking: string;
-    ac: string;
-    wifi: string;
-    patio: string;
-  };
+  amenities: Record<string, string>;
   clear_all: string;
   show_homes: string;
   show_count_homes: string;
@@ -82,6 +75,7 @@ export interface PropertyDetailDict {
   map_unavailable: string;
   top_rated_agent: string;
   footer_rights: string;
+  amenity_labels: Record<string, string>;
 }
 
 export interface NavbarDict {

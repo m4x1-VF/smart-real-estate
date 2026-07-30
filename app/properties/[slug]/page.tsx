@@ -62,7 +62,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
           <div className="lg:col-span-8 space-y-4">
-            <PropertyGallery images={property.images ?? []} title={property.title} dict={dict.gallery} />
+            <PropertyGallery images={property.images ?? []} title={property.title} dict={dict.gallery} isFeatured={property.is_featured} />
           </div>
 
           <div className="lg:col-span-4 relative">
@@ -195,20 +195,13 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 {t.about_home}
               </h2>
               <div className="prose prose-slate max-w-none text-nordic/70 leading-relaxed">
-                <p className="mb-4">
-                  Experience modern luxury in this architecturally stunning home
-                  located in the heart of{' '}
-                  {property.location.split(',')[0] || 'the city'}. Designed with
-                  an emphasis on indoor-outdoor living, the residence features
-                  floor-to-ceiling glass walls that flood the interiors with
-                  natural light.
-                </p>
-                <p>
-                  The open-concept kitchen is equipped with top-of-the-line
-                  appliances and custom cabinetry, perfect for culinary
-                  enthusiasts. Retreat to the primary suite, a sanctuary of
-                  relaxation with a spa-inspired bath and private balcony.
-                </p>
+                {property.description ? (
+                  <p>{property.description}</p>
+                ) : (
+                  <p className="text-nordic/40 italic">
+                    No hay descripción disponible para esta propiedad.
+                  </p>
+                )}
               </div>
               <button className="mt-4 text-mosque font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                 {t.read_more}
@@ -220,44 +213,22 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               <h2 className="text-lg font-semibold mb-6 text-nordic">
                 {t.amenities}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.smart_home}</span>
+              {property.amenities && property.amenities.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                  {property.amenities.map((amenity) => (
+                    <div key={amenity} className="flex items-center gap-3 text-nordic/70">
+                      <span className="material-icons text-mosque/60 text-sm">
+                        check_circle
+                      </span>
+                      <span>{(t.amenity_labels as Record<string, string>)?.[amenity] || amenity}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.swimming_pool}</span>
-                </div>
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.heating_cooling}</span>
-                </div>
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.ev_charging}</span>
-                </div>
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.private_gym}</span>
-                </div>
-                <div className="flex items-center gap-3 text-nordic/70">
-                  <span className="material-icons text-mosque/60 text-sm">
-                    check_circle
-                  </span>
-                  <span>{t.wine_cellar}</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-nordic/40 italic">
+                  No hay comodidades disponibles para esta propiedad.
+                </p>
+              )}
             </div>
           </div>
         </div>
