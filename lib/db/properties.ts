@@ -112,10 +112,10 @@ export async function listProperties(
     SELECT ${sql.unsafe(PROPERTY_COLUMNS)}
     FROM properties
     WHERE ${includeInactive ? sql.unsafe('true') : sql`is_active = true`}
-      ${normalizedLocation ? sql`AND (unaccent(location) ILIKE unaccent(${'%' + normalizedLocation + '%'}) OR unaccent(title) ILIKE unaccent(${'%' + normalizedLocation + '%'}))` : sql``}
+      ${normalizedLocation ? sql`AND (strip_accents(location) ILIKE strip_accents(${'%' + normalizedLocation + '%'}) OR strip_accents(title) ILIKE strip_accents(${'%' + normalizedLocation + '%'}))` : sql``}
       ${minPrice !== undefined ? sql`AND price >= ${minPrice}` : sql``}
       ${maxPrice !== undefined ? sql`AND price <= ${maxPrice}` : sql``}
-      ${normalizedType ? sql`AND unaccent(title) ILIKE unaccent(${'%' + normalizedType + '%'})` : sql``}
+      ${normalizedType ? sql`AND strip_accents(title) ILIKE strip_accents(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
     ORDER BY created_at DESC
@@ -160,10 +160,10 @@ export async function countProperties(
     SELECT COUNT(*)::int AS count
     FROM properties
     WHERE ${includeInactive ? sql.unsafe('true') : sql`is_active = true`}
-      ${normalizedLocation ? sql`AND (unaccent(location) ILIKE unaccent(${'%' + normalizedLocation + '%'}) OR unaccent(title) ILIKE unaccent(${'%' + normalizedLocation + '%'}))` : sql``}
+      ${normalizedLocation ? sql`AND (strip_accents(location) ILIKE strip_accents(${'%' + normalizedLocation + '%'}) OR strip_accents(title) ILIKE strip_accents(${'%' + normalizedLocation + '%'}))` : sql``}
       ${minPrice !== undefined ? sql`AND price >= ${minPrice}` : sql``}
       ${maxPrice !== undefined ? sql`AND price <= ${maxPrice}` : sql``}
-      ${normalizedType ? sql`AND unaccent(title) ILIKE unaccent(${'%' + normalizedType + '%'})` : sql``}
+      ${normalizedType ? sql`AND strip_accents(title) ILIKE strip_accents(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
   `) as { count: number }[];
