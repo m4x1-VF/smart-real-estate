@@ -8,25 +8,70 @@
   },
   "hero": {
     "title_start": "Trouvez votre ",
-    "title_highlight": "sanctuaire",
+    "title_highlight": "maison de rêve",
     "title_end": ".",
     "subtitle": "Découvrez les meilleures propriétés sur le marché",
     "search_placeholder": "Rechercher par ville, quartier ou adresse...",
-    "search_button": "Rechercher"
+    "search_button": "Rechercher",
+    "all": "Tous",
+    "filters": "Filtres",
+    "penthouse": "Penthouse"
   },
   "common": {
     "featured_properties": "Collections en Vedette",
     "new_in_market": "Nouveau sur le Marché",
+    "fresh_subtitle": "Nouvelles opportunités cette semaine.",
     "view_details": "Voir les Détails",
     "any_type": "Tout Type",
+    "any": "Tout",
+    "all": "Tous",
+    "for_rent": "À Louer",
+    "beds_label": "Chb",
+    "baths_label": "Sdb",
     "property_types": {
       "villa": "Villa",
       "house": "Maison",
       "apartment": "Appartement",
-      "condo": "Condo"
+      "condo": "Condo",
+      "townhouse": "Maison de Ville",
+      "penthouse": "Penthouse"
     },
     "beds": "Lits",
-    "baths": "Bains"
+    "baths": "Bains",
+    "sqm": "m²"
+  },
+  "filters": {
+    "title": "Filtres",
+    "location": "Emplacement",
+    "location_placeholder": "Ville, quartier ou adresse",
+    "price_range": "Fourchette de Prix",
+    "min_price": "Prix Min",
+    "max_price": "Prix Max",
+    "property_type": "Type de Propriété",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de Bain",
+    "amenities_title": "Équipements & Caractéristiques",
+    "amenities": {
+      "pool": "Piscine",
+      "gym": "Salle de Sport",
+      "parking": "Parking",
+      "ac": "Climatisation",
+      "wifi": "Wifi Haut Débit",
+      "patio": "Patio / Terrasse"
+    },
+    "clear_all": "Effacer tous les filtres",
+    "show_homes": "Voir les Propriétés",
+    "show_count_homes": "Voir"
+  },
+  "gallery": {
+    "premium": "Premium",
+    "view_all_photos": "Voir les {count} photos"
+  },
+  "featured": {
+    "subtitle": "Propriétés sélectionnées pour vous.",
+    "view_all": "Voir tout",
+    "new_arrival": "Nouveau",
+    "exclusive": "Exclusif"
   },
   "property_detail": {
     "schedule_visit": "Planifier une Visite",

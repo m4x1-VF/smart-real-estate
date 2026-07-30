@@ -2,12 +2,17 @@ import Link from 'next/link';
 import { Collection } from '@/data/mockData';
 import CollectionCard from './ui/CollectionCard';
 import { getDb } from '@/lib/db/client';
-import type { CommonDict } from '@/types/i18n';
+import type { CommonDict, FeaturedDict } from '@/types/i18n';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { getFavoritePropertyIds } from '@/app/saved/actions';
 
-const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
+interface FeaturedCollectionProps {
+  dict: CommonDict;
+  featuredDict: FeaturedDict;
+}
+
+const FeaturedCollection = async ({ dict, featuredDict }: FeaturedCollectionProps) => {
   const sql = getDb();
 
   const properties = await sql<
@@ -35,7 +40,7 @@ const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
     beds: p.beds,
     baths: p.baths,
     sqft: p.sqft,
-    tag: p.is_new ? 'New Arrival' : 'Exclusive',
+    tag: p.is_new ? featuredDict.new_arrival : featuredDict.exclusive,
   }));
 
   const session = await auth.api.getSession({ headers: await headers() });
@@ -53,14 +58,14 @@ const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
             {dict.featured_properties}
           </h2>
           <p className="text-nordic-muted mt-1 text-sm">
-            Curated properties for the discerning eye.
+            {featuredDict.subtitle}
           </p>
         </div>
         <Link
           href="#"
           className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
         >
-          View all{' '}
+          {featuredDict.view_all}{' '}
           <span className="material-icons text-sm font-material-icons">
             arrow_forward
           </span>
@@ -73,6 +78,7 @@ const FeaturedCollection = async ({ dict }: { dict: CommonDict }) => {
             key={collection.id}
             collection={collection}
             isFavorited={favoriteIds?.has(collection.id) ?? false}
+            dict={dict}
           />
         ))}
       </div>

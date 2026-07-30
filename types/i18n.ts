@@ -5,21 +5,57 @@ export interface HeroDict {
   subtitle: string;
   search_placeholder: string;
   search_button: string;
+  all: string;
+  filters: string;
+  penthouse: string;
+}
+
+export interface FiltersDict {
+  title: string;
+  location: string;
+  location_placeholder: string;
+  price_range: string;
+  min_price: string;
+  max_price: string;
+  property_type: string;
+  bedrooms: string;
+  bathrooms: string;
+  amenities_title: string;
+  amenities: {
+    pool: string;
+    gym: string;
+    parking: string;
+    ac: string;
+    wifi: string;
+    patio: string;
+  };
+  clear_all: string;
+  show_homes: string;
+  show_count_homes: string;
 }
 
 export interface CommonDict {
   featured_properties: string;
   new_in_market: string;
+  fresh_subtitle: string;
   view_details: string;
   any_type: string;
+  any: string;
+  all: string;
+  for_rent: string;
+  beds_label: string;
+  baths_label: string;
   property_types: {
     villa: string;
     house: string;
     apartment: string;
     condo: string;
+    townhouse: string;
+    penthouse: string;
   };
   beds: string;
   baths: string;
+  sqm: string;
 }
 
 export interface PropertyDetailDict {
@@ -53,11 +89,27 @@ export interface NavbarDict {
   rent: string;
   sell: string;
   saved_homes: string;
+  login: string;
+}
+
+export interface GalleryDict {
+  premium: string;
+  view_all_photos: string;
+}
+
+export interface FeaturedDict {
+  subtitle: string;
+  view_all: string;
+  new_arrival: string;
+  exclusive: string;
 }
 
 export interface Dictionary {
   navbar: NavbarDict;
   hero: HeroDict;
   common: CommonDict;
+  filters: FiltersDict;
   property_detail: PropertyDetailDict;
+  gallery: GalleryDict;
+  featured: FeaturedDict;
 }

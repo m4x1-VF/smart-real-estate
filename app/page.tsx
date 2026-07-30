@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import FeaturedCollection from '@/components/FeaturedCollection';
 import NewInMarket from '@/components/NewInMarket';
+import Footer from '@/components/Footer';
 import { listProperties } from '@/lib/db/properties';
 import { cookies, headers } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
@@ -67,10 +68,11 @@ export default async function Home({ searchParams }: HomePageProps) {
     <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <Hero dict={dict.hero} />
-        {!isFilterActive && <FeaturedCollection dict={dict.common} />}
+        <Hero dict={dict.hero} commonDict={dict.common} filtersDict={dict.filters} />
+        {!isFilterActive && <FeaturedCollection dict={dict.common} featuredDict={dict.featured} />}
         <NewInMarket
           dict={dict.common}
+          navbarDict={dict.navbar}
           properties={properties}
           totalCount={totalCount}
           currentPage={currentPage}
@@ -78,6 +80,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           favoriteIds={favoriteIds}
         />
       </main>
+      <Footer />
     </>
   );
 }

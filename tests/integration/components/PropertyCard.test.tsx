@@ -90,7 +90,7 @@ describe('PropertyCard component', () => {
     expect(screen.getByText('Test Property')).toBeInTheDocument();
     // Price is in an h3; use role to target it specifically (avoids matching sqft "1500")
     const priceHeading = screen.getByRole('heading', { level: 3 });
-    expect(priceHeading.textContent).toMatch(/\$/);
+    expect(priceHeading.textContent).toMatch(/€|\$/);
   });
 
   it('passes isFavorited=false to FavoriteButton by default', () => {

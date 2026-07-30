@@ -50,8 +50,7 @@ export default async function AdminLayout({
       <footer className="mt-auto border-t border-nordic/5 bg-clear-day py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-center text-sm text-nordic/60 w-full md:text-left md:w-auto">
-            © {new Date().getFullYear()} LuxeEstate Properties. All rights
-            reserved.
+            © {new Date().getFullYear()} LuxeEstate Properties. Todos los derechos reservados.
           </p>
         </div>
       </footer>

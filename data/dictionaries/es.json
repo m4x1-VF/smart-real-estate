@@ -8,25 +8,70 @@
   },
   "hero": {
     "title_start": "Encuentra tu ",
-    "title_highlight": "santuario",
+    "title_highlight": "hogar ideal",
     "title_end": ".",
     "subtitle": "Descubre las mejores propiedades en el mercado",
     "search_placeholder": "Buscar por ciudad, barrio o dirección...",
-    "search_button": "Buscar"
+    "search_button": "Buscar",
+    "all": "Todos",
+    "filters": "Filtros",
+    "penthouse": "Ático"
   },
   "common": {
     "featured_properties": "Colecciones Destacadas",
     "new_in_market": "Nuevas en el Mercado",
+    "fresh_subtitle": "Oportunidades añadidas esta semana.",
     "view_details": "Ver Detalles",
     "any_type": "Cualquier Tipo",
+    "any": "Cualquiera",
+    "all": "Todos",
+    "for_rent": "Alquiler",
+    "beds_label": "Hab",
+    "baths_label": "Baños",
     "property_types": {
       "villa": "Villa",
       "house": "Casa",
       "apartment": "Apartamento",
-      "condo": "Condominio"
+      "condo": "Condominio",
+      "townhouse": "Casa Adosada",
+      "penthouse": "Ático"
     },
     "beds": "Camas",
-    "baths": "Baños"
+    "baths": "Baños",
+    "sqm": "m²"
+  },
+  "filters": {
+    "title": "Filtros",
+    "location": "Ubicación",
+    "location_placeholder": "Ciudad, barrio o dirección",
+    "price_range": "Rango de Precio",
+    "min_price": "Precio Mín",
+    "max_price": "Precio Máx",
+    "property_type": "Tipo de Propiedad",
+    "bedrooms": "Habitaciones",
+    "bathrooms": "Baños",
+    "amenities_title": "Comodidades y Características",
+    "amenities": {
+      "pool": "Piscina",
+      "gym": "Gimnasio",
+      "parking": "Estacionamiento",
+      "ac": "Aire Acondicionado",
+      "wifi": "Wifi de Alta Velocidad",
+      "patio": "Patio / Terraza"
+    },
+    "clear_all": "Limpiar todos los filtros",
+    "show_homes": "Mostrar Propiedades",
+    "show_count_homes": "Mostrar"
+  },
+  "gallery": {
+    "premium": "Premium",
+    "view_all_photos": "Ver todas las {count} fotos"
+  },
+  "featured": {
+    "subtitle": "Propiedades seleccionadas para ti.",
+    "view_all": "Ver todas",
+    "new_arrival": "Nueva",
+    "exclusive": "Exclusiva"
   },
   "property_detail": {
     "schedule_visit": "Agendar Visita",

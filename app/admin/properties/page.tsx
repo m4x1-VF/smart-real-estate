@@ -137,12 +137,12 @@ export default async function AdminPropertiesPage(props: {
                 <div className="flex items-center gap-3 mt-1.5 text-xs text-nordic/50">
                   <span className="flex items-center gap-1">
                     <span className="material-icons text-[14px]">bed</span>{' '}
-                    {property.beds || 0} Beds
+                    {property.beds || 0} Hab
                   </span>
                   <span className="w-1 h-1 rounded-full bg-nordic/20"></span>
                   <span className="flex items-center gap-1">
                     <span className="material-icons text-[14px]">bathtub</span>{' '}
-                    {property.baths || 0} Baths
+                    {property.baths || 0} Baños
                   </span>
                 </div>
               </div>
@@ -151,7 +151,7 @@ export default async function AdminPropertiesPage(props: {
             {/* Price */}
             <div className="col-span-6 md:col-span-2">
               <div className="text-base font-semibold text-nordic">
-                ${property.price.toLocaleString()}
+                €{property.price.toLocaleString()}
               </div>
               <div className="text-xs text-nordic/50 capitalize">
                 {property.type}

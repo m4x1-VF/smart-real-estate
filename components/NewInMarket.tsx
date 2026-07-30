@@ -1,10 +1,11 @@
 import PropertyCard from '@/components/ui/PropertyCard';
 import Pagination from '@/components/Pagination';
 import type { Property } from '@/types/db';
-import type { CommonDict } from '@/types/i18n';
+import type { CommonDict, NavbarDict } from '@/types/i18n';
 
 interface NewInMarketProps {
   dict: CommonDict;
+  navbarDict: NavbarDict;
   properties: Property[];
   totalCount: number;
   currentPage: number;
@@ -14,6 +15,7 @@ interface NewInMarketProps {
 
 const NewInMarket = ({
   dict,
+  navbarDict,
   properties,
   totalCount,
   currentPage,
@@ -30,18 +32,18 @@ const NewInMarket = ({
             {dict.new_in_market}
           </h2>
           <p className="text-nordic-muted mt-1 text-sm">
-            Fresh opportunities added this week.
+            {dict.fresh_subtitle}
           </p>
         </div>
         <div className="hidden md:flex bg-white p-1 rounded-lg">
           <button className="px-4 py-1.5 rounded-md text-sm font-medium bg-nordic text-white shadow-sm">
-            All
+            {dict.all}
           </button>
           <button className="px-4 py-1.5 rounded-md text-sm font-medium text-nordic-muted hover:text-nordic">
-            Buy
+            {navbarDict.buy}
           </button>
           <button className="px-4 py-1.5 rounded-md text-sm font-medium text-nordic-muted hover:text-nordic">
-            Rent
+            {navbarDict.rent}
           </button>
         </div>
       </div>
@@ -52,6 +54,7 @@ const NewInMarket = ({
             key={property.id}
             property={property}
             isFavorited={favoriteIds?.has(property.id) ?? false}
+            dict={dict}
           />
         ))}
       </div>

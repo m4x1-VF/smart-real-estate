@@ -2,19 +2,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Property } from '@/types/db';
 import FavoriteButton from '@/components/ui/FavoriteButton';
+import type { CommonDict } from '@/types/i18n';
 
 interface PropertyCardProps {
   property: Property;
   isFavorited?: boolean;
+  dict?: CommonDict;
 }
 
-const PropertyCard = ({ property, isFavorited = false }: PropertyCardProps) => {
+const PropertyCard = ({ property, isFavorited = false, dict }: PropertyCardProps) => {
+  const saleLabel = property.type === 'sale' ? 'VENTA' : 'ALQUILER';
+
   return (
     <Link
       href={`/properties/${property.slug || property.id}`}
       className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer h-full flex flex-col"
     >
-      {/* Image Container */}
       <div className="relative aspect-4/3 overflow-hidden bg-gray-100">
         {property.images[0] ? (
           <Image
@@ -29,7 +32,6 @@ const PropertyCard = ({ property, isFavorited = false }: PropertyCardProps) => {
           </div>
         )}
 
-        {/* Favorite Button */}
         <FavoriteButton
           propertyId={property.id}
           isFavorited={isFavorited}
@@ -37,21 +39,19 @@ const PropertyCard = ({ property, isFavorited = false }: PropertyCardProps) => {
           size="lg"
         />
 
-        {/* Type Tag */}
         <div
           className={`absolute bottom-3 left-3 text-white text-xs font-bold px-2 py-1 rounded ${property.type === 'sale' ? 'bg-nordic/90' : 'bg-mosque/90'}`}
         >
-          {property.type === 'sale' ? 'FOR SALE' : 'FOR RENT'}
+          {saleLabel}
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4 flex flex-col grow">
         <div className="flex justify-between items-baseline mb-2">
           <h3 className="font-bold text-lg text-nordic">
-            ${property.price.toLocaleString()}
+            €{property.price.toLocaleString()}
             {property.type === 'rent' && (
-              <span className="text-sm font-normal text-nordic-muted">/mo</span>
+              <span className="text-sm font-normal text-nordic-muted">/mes</span>
             )}
           </h3>
         </div>
@@ -61,25 +61,24 @@ const PropertyCard = ({ property, isFavorited = false }: PropertyCardProps) => {
         </h4>
         <p className="text-nordic-muted text-xs mb-4">{property.location}</p>
 
-        {/* Footer Features */}
         <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80 font-material-icons">
               king_bed
             </span>{' '}
-            {property.beds}
+            {property.beds} {dict?.beds_label || 'Hab'}
           </div>
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80 font-material-icons">
               bathtub
             </span>{' '}
-            {property.baths}
+            {property.baths} {dict?.baths_label || 'Baños'}
           </div>
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80 font-material-icons">
               square_foot
             </span>{' '}
-            {property.sqft}m²
+            {property.sqft} {dict?.sqm || 'm²'}
           </div>
         </div>
       </div>

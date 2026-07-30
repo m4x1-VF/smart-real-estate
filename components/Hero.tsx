@@ -3,17 +3,17 @@
 import { useState, FormEvent } from 'react';
 import FilterModal from './ui/FilterModal';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type { HeroDict, CommonDict, FiltersDict } from '@/types/i18n';
 
-interface HeroDict {
-  title_start: string;
-  title_highlight: string;
-  title_end: string;
-  subtitle: string;
-  search_placeholder: string;
-  search_button: string;
+interface HeroProps {
+  dict: HeroDict;
+  commonDict: CommonDict;
+  filtersDict: FiltersDict;
 }
 
-export default function Hero({ dict }: { dict: HeroDict }) {
+const PROPERTY_TYPE_KEYS = ['House', 'Apartment', 'Villa', 'Penthouse'] as const;
+
+export default function Hero({ dict, commonDict, filtersDict }: HeroProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -31,6 +31,14 @@ export default function Hero({ dict }: { dict: HeroDict }) {
     }
     params.delete('page');
     router.push(`/?${params.toString()}`);
+  };
+
+  const typeLabels: Record<string, string> = {
+    All: dict.all,
+    House: commonDict.property_types.house,
+    Apartment: commonDict.property_types.apartment,
+    Villa: commonDict.property_types.villa,
+    Penthouse: dict.penthouse,
   };
 
   return (
@@ -72,7 +80,7 @@ export default function Hero({ dict }: { dict: HeroDict }) {
         </form>
 
         <div className="flex items-center justify-center gap-3 overflow-x-auto hide-scroll py-2 px-4 -mx-4">
-          {['All', 'House', 'Apartment', 'Villa', 'Penthouse'].map((pt) => {
+          {(['All', ...PROPERTY_TYPE_KEYS] as const).map((pt) => {
             const isActive = (searchParams.get('type') || 'All') === pt;
             return (
               <button
@@ -93,7 +101,7 @@ export default function Hero({ dict }: { dict: HeroDict }) {
                     : 'bg-white border border-nordic/5 text-nordic-muted hover:text-nordic hover:border-mosque/50 hover:bg-mosque/5'
                 }`}
               >
-                {pt}
+                {typeLabels[pt]}
               </button>
             );
           })}
@@ -105,7 +113,7 @@ export default function Hero({ dict }: { dict: HeroDict }) {
             <span className="material-icons text-base font-material-icons">
               tune
             </span>{' '}
-            Filters
+            {dict.filters}
           </button>
         </div>
       </div>
@@ -113,6 +121,8 @@ export default function Hero({ dict }: { dict: HeroDict }) {
       <FilterModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
+        dict={filtersDict}
+        commonDict={commonDict}
       />
     </section>
   );

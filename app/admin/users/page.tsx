@@ -53,7 +53,7 @@ export default async function AdminUsersPage(props: {
         </div>
         <div className="mt-8 flex gap-6 border-b border-nordic/10 overflow-x-auto">
           <button className="pb-3 text-sm font-semibold text-mosque border-b-2 border-mosque">
-            All Users
+            Todos los Usuarios
           </button>
           <button className="pb-3 text-sm font-medium text-nordic/60 hover:text-nordic transition-colors">
             Agents

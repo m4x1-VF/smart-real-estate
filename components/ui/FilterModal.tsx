@@ -2,31 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type { FiltersDict, CommonDict } from '@/types/i18n';
 
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  dict: FiltersDict;
+  commonDict: CommonDict;
   totalResults?: number;
 }
 
-const AMENITIES = [
-  { id: 'pool', label: 'Swimming Pool', icon: 'pool' },
-  { id: 'gym', label: 'Gym', icon: 'fitness_center' },
-  { id: 'parking', label: 'Parking', icon: 'local_parking' },
-  { id: 'ac', label: 'Air Conditioning', icon: 'ac_unit' },
-  { id: 'wifi', label: 'High-speed Wifi', icon: 'wifi' },
-  { id: 'patio', label: 'Patio / Terrace', icon: 'deck' },
-];
+const AMENITY_ICONS: Record<string, string> = {
+  pool: 'pool',
+  gym: 'fitness_center',
+  parking: 'local_parking',
+  ac: 'ac_unit',
+  wifi: 'wifi',
+  patio: 'deck',
+};
+
+const AMENITY_KEYS = Object.keys(AMENITY_ICONS);
 
 export default function FilterModal({
   isOpen,
   onClose,
+  dict,
+  commonDict,
   totalResults = 0,
 }: FilterModalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Local state for filters
   const [location, setLocation] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -35,10 +41,8 @@ export default function FilterModal({
   const [baths, setBaths] = useState(0);
   const [amenities, setAmenities] = useState<string[]>([]);
 
-  // Initialize from URL params when opening
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocation(searchParams.get('location') || '');
       setMinPrice(searchParams.get('minPrice') || '');
       setMaxPrice(searchParams.get('maxPrice') || '');
@@ -61,7 +65,6 @@ export default function FilterModal({
     if (baths > 0) params.set('baths', baths.toString());
     if (amenities.length > 0) params.set('amenities', amenities.join(','));
 
-    // Always reset to first page when filtering
     params.delete('page');
 
     router.push(`/?${params.toString()}`);
@@ -86,7 +89,6 @@ export default function FilterModal({
     );
   };
 
-  // Close on Escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -97,21 +99,30 @@ export default function FilterModal({
 
   if (!isOpen) return null;
 
+  const amenityLabels = dict.amenities as Record<string, string>;
+
+  const propertyTypeOptions = [
+    { value: 'Any Type', label: commonDict.any_type },
+    { value: 'House', label: commonDict.property_types.house },
+    { value: 'Apartment', label: commonDict.property_types.apartment },
+    { value: 'Condo', label: commonDict.property_types.condo },
+    { value: 'Townhouse', label: commonDict.property_types.townhouse },
+    { value: 'Villa', label: commonDict.property_types.villa },
+    { value: 'Penthouse', label: commonDict.property_types.penthouse },
+  ];
+
   return (
     <>
-      {/* Modal Overlay */}
       <div
         className="fixed inset-0 bg-mosque/40 backdrop-blur-sm z-100 transition-opacity"
         onClick={onClose}
       ></div>
 
-      {/* Main Modal Container */}
       <div className="fixed inset-0 z-110 flex items-center justify-center p-4 pointer-events-none">
         <main className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] pointer-events-auto">
-          {/* Header */}
           <header className="px-8 py-6 border-b border-nordic/10 flex justify-between items-center bg-white sticky top-0 z-30">
             <h1 className="text-2xl font-semibold tracking-tight text-nordic">
-              Filters
+              {dict.title}
             </h1>
             <button
               onClick={onClose}
@@ -121,12 +132,10 @@ export default function FilterModal({
             </button>
           </header>
 
-          {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto hide-scroll p-8 space-y-10">
-            {/* Section 1: Location */}
             <section>
               <label className="block text-xs font-semibold text-nordic-muted uppercase tracking-wider mb-3">
-                Location
+                {dict.location}
               </label>
               <div className="relative group">
                 <span className="material-icons font-material-icons absolute left-4 top-3.5 text-nordic-muted group-focus-within:text-mosque transition-colors">
@@ -137,25 +146,24 @@ export default function FilterModal({
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-white border border-nordic/10 rounded-lg text-nordic placeholder-nordic-muted/50 focus:ring-2 focus:ring-mosque focus:border-mosque transition-all shadow-sm"
-                  placeholder="City, neighborhood, or address"
+                  placeholder={dict.location_placeholder}
                 />
               </div>
             </section>
 
-            {/* Section 2: Price Range */}
             <section>
               <div className="flex justify-between items-end mb-4">
                 <label className="block text-xs font-semibold text-nordic-muted uppercase tracking-wider">
-                  Price Range
+                  {dict.price_range}
                 </label>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white border border-nordic/10 p-3 rounded-lg focus-within:border-mosque/50 focus-within:ring-1 focus-within:ring-mosque/50 transition-colors">
                   <label className="block text-[10px] text-nordic-muted uppercase font-medium mb-1">
-                    Min Price
+                    {dict.min_price}
                   </label>
                   <div className="flex items-center">
-                    <span className="text-nordic-muted mr-1">$</span>
+                    <span className="text-nordic-muted mr-1">€</span>
                     <input
                       type="number"
                       value={minPrice}
@@ -167,28 +175,26 @@ export default function FilterModal({
                 </div>
                 <div className="bg-white border border-nordic/10 p-3 rounded-lg focus-within:border-mosque/50 focus-within:ring-1 focus-within:ring-mosque/50 transition-colors">
                   <label className="block text-[10px] text-nordic-muted uppercase font-medium mb-1">
-                    Max Price
+                    {dict.max_price}
                   </label>
                   <div className="flex items-center">
-                    <span className="text-nordic-muted mr-1">$</span>
+                    <span className="text-nordic-muted mr-1">€</span>
                     <input
                       type="number"
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
                       className="w-full bg-transparent border-0 p-0 text-nordic font-medium focus:ring-0 text-sm placeholder:text-nordic-muted/40"
-                      placeholder="Any"
+                      placeholder={commonDict.any}
                     />
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Section 3: Property Details */}
             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Property Type */}
               <div className="space-y-3">
                 <label className="block text-xs font-semibold text-nordic-muted uppercase tracking-wider">
-                  Property Type
+                  {dict.property_type}
                 </label>
                 <div className="relative">
                   <select
@@ -196,13 +202,11 @@ export default function FilterModal({
                     onChange={(e) => setPropertyType(e.target.value)}
                     className="w-full bg-white border border-nordic/10 rounded-lg py-3 pl-4 pr-10 text-nordic appearance-none focus:ring-2 focus:ring-mosque focus:border-mosque cursor-pointer"
                   >
-                    <option>Any Type</option>
-                    <option>House</option>
-                    <option>Apartment</option>
-                    <option>Condo</option>
-                    <option>Townhouse</option>
-                    <option>Villa</option>
-                    <option>Penthouse</option>
+                    {propertyTypeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="material-icons font-material-icons absolute right-3 top-3 text-nordic-muted pointer-events-none">
                     expand_more
@@ -210,12 +214,10 @@ export default function FilterModal({
                 </div>
               </div>
 
-              {/* Rooms */}
               <div className="space-y-4">
-                {/* Beds */}
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-nordic">
-                    Bedrooms
+                    {dict.bedrooms}
                   </span>
                   <div className="flex items-center space-x-3 bg-white border border-nordic/10 rounded-full p-1">
                     <button
@@ -227,7 +229,7 @@ export default function FilterModal({
                       </span>
                     </button>
                     <span className="text-sm font-semibold w-6 text-center">
-                      {beds > 0 ? `${beds}+` : 'Any'}
+                      {beds > 0 ? `${beds}+` : commonDict.any}
                     </span>
                     <button
                       onClick={() => setBeds(beds + 1)}
@@ -240,10 +242,9 @@ export default function FilterModal({
                   </div>
                 </div>
 
-                {/* Baths */}
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-nordic">
-                    Bathrooms
+                    {dict.bathrooms}
                   </span>
                   <div className="flex items-center space-x-3 bg-white border border-nordic/10 rounded-full p-1">
                     <button
@@ -255,7 +256,7 @@ export default function FilterModal({
                       </span>
                     </button>
                     <span className="text-sm font-semibold w-6 text-center">
-                      {baths > 0 ? `${baths}+` : 'Any'}
+                      {baths > 0 ? `${baths}+` : commonDict.any}
                     </span>
                     <button
                       onClick={() => setBaths(baths + 1)}
@@ -270,24 +271,23 @@ export default function FilterModal({
               </div>
             </section>
 
-            {/* Section 4: Amenities */}
             <section>
               <label className="block text-xs font-semibold text-nordic-muted uppercase tracking-wider mb-4">
-                Amenities &amp; Features
+                {dict.amenities_title}
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {AMENITIES.map((amenity) => {
-                  const isActive = amenities.includes(amenity.id);
+                {AMENITY_KEYS.map((key) => {
+                  const isActive = amenities.includes(key);
                   return (
                     <label
-                      key={amenity.id}
+                      key={key}
                       className="cursor-pointer group relative"
                     >
                       <input
                         type="checkbox"
                         className="peer sr-only"
                         checked={isActive}
-                        onChange={() => toggleAmenity(amenity.id)}
+                        onChange={() => toggleAmenity(key)}
                       />
                       <div
                         className={`h-full px-4 py-3 rounded-lg border text-sm flex items-center justify-center gap-2 transition-all ${
@@ -299,9 +299,9 @@ export default function FilterModal({
                         <span
                           className={`material-icons font-material-icons text-lg ${isActive ? '' : 'text-nordic-muted group-hover:text-nordic'}`}
                         >
-                          {amenity.icon}
+                          {AMENITY_ICONS[key]}
                         </span>
-                        <span>{amenity.label}</span>
+                        <span>{amenityLabels[key]}</span>
                       </div>
                       {isActive && (
                         <div className="absolute top-2 right-2 w-2 h-2 bg-mosque rounded-full opacity-100 transition-opacity"></div>
@@ -313,19 +313,20 @@ export default function FilterModal({
             </section>
           </div>
 
-          {/* Footer */}
           <footer className="bg-white border-t border-nordic/10 px-8 py-6 sticky bottom-0 z-30 flex items-center justify-between">
             <button
               onClick={handleClear}
               className="text-sm font-medium text-nordic-muted hover:text-nordic transition-colors underline decoration-nordic/20 underline-offset-4"
             >
-              Clear all filters
+              {dict.clear_all}
             </button>
             <button
               onClick={handleApply}
               className="bg-mosque hover:bg-mosque/90 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-mosque/30 transition-all hover:shadow-mosque/40 flex items-center gap-2 transform active:scale-95"
             >
-              {totalResults > 0 ? `Show ${totalResults} Homes` : 'Show Homes'}
+              {totalResults > 0
+                ? `${dict.show_count_homes} ${totalResults}`
+                : dict.show_homes}
               <span className="material-icons font-material-icons text-sm">
                 arrow_forward
               </span>

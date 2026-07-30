@@ -6,6 +6,7 @@ import DynamicPropertyMap from '@/components/DynamicPropertyMap';
 import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
+import Footer from '@/components/Footer';
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: PropertyPageProps) {
       'en-US',
       {
         style: 'currency',
-        currency: 'USD',
+        currency: 'EUR',
         maximumFractionDigits: 0,
       },
     ).format(property.price)}`,
@@ -50,7 +51,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   // Format currency
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'EUR',
     maximumFractionDigits: 0,
   }).format(property.price);
 
@@ -61,7 +62,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
           <div className="lg:col-span-8 space-y-4">
-            <PropertyGallery images={property.images ?? []} title={property.title} />
+            <PropertyGallery images={property.images ?? []} title={property.title} dict={dict.gallery} />
           </div>
 
           <div className="lg:col-span-4 relative">
@@ -258,56 +259,11 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 </div>
               </div>
             </div>
-
-            <div className="bg-mosque/5 p-6 rounded-xl border border-mosque/10 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-white rounded-full text-mosque shadow-sm">
-                  <span className="material-icons">calculate</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-nordic">
-                    {t.estimated_payment}
-                  </h3>
-                  <p className="text-sm text-nordic/60">
-                    {t.starting_from}{' '}
-                    <strong className="text-mosque">$5,430/mo</strong> 20%{' '}
-                    {t.down}
-                  </p>
-                </div>
-              </div>
-              <button className="whitespace-nowrap px-4 py-2 bg-white border border-nordic/10 rounded-lg text-sm font-semibold hover:border-mosque transition-colors text-nordic">
-                {t.calculate_mortgage}
-              </button>
-            </div>
           </div>
         </div>
       </main>
 
-      <footer className="bg-white border-t border-slate-200 mt-12 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-sm text-nordic/50">{t.footer_rights}</div>
-          <div className="flex gap-6">
-            <a
-              href="#"
-              className="text-nordic/40 hover:text-mosque transition-colors"
-            >
-              <span className="sr-only">Facebook</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path>
-              </svg>
-            </a>
-            <a
-              href="#"
-              className="text-nordic/40 hover:text-mosque transition-colors"
-            >
-              <span className="sr-only">Twitter</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -2,13 +2,15 @@ import Image from 'next/image';
 import { Collection } from '@/data/mockData';
 import Link from 'next/link';
 import FavoriteButton from '@/components/ui/FavoriteButton';
+import type { CommonDict } from '@/types/i18n';
 
 interface CollectionCardProps {
   collection: Collection;
   isFavorited?: boolean;
+  dict?: CommonDict;
 }
 
-const CollectionCard = ({ collection, isFavorited = false }: CollectionCardProps) => {
+const CollectionCard = ({ collection, isFavorited = false, dict }: CollectionCardProps) => {
   return (
     <Link
       href={`/properties/${collection.slug || collection.id}`}
@@ -61,7 +63,7 @@ const CollectionCard = ({ collection, isFavorited = false }: CollectionCardProps
             </p>
           </div>
           <span className="text-xl font-semibold text-mosque">
-            ${collection.price.toLocaleString()}
+            €{collection.price.toLocaleString()}
           </span>
         </div>
 
@@ -71,13 +73,13 @@ const CollectionCard = ({ collection, isFavorited = false }: CollectionCardProps
             <span className="material-icons text-lg font-material-icons">
               king_bed
             </span>{' '}
-            {collection.beds} Beds
+            {collection.beds} {dict?.beds_label || 'Beds'}
           </div>
           <div className="flex items-center gap-2 text-nordic-muted text-sm">
             <span className="material-icons text-lg font-material-icons">
               bathtub
             </span>{' '}
-            {collection.baths} Baths
+            {collection.baths} {dict?.baths_label || 'Baths'}
           </div>
           <div className="flex items-center gap-2 text-nordic-muted text-sm">
             <span className="material-icons text-lg font-material-icons">

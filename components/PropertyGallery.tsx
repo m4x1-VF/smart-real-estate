@@ -2,19 +2,27 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import type { GalleryDict } from '@/types/i18n';
 
 interface PropertyGalleryProps {
   images: string[];
   title: string;
+  dict: GalleryDict;
 }
 
 export default function PropertyGallery({
   images,
   title,
+  dict,
 }: PropertyGalleryProps) {
   const [activeImage, setActiveImage] = useState(0);
 
   if (!images || images.length === 0) return null;
+
+  const viewAllLabel = dict.view_all_photos.replace(
+    '{count}',
+    String(images.length),
+  );
 
   return (
     <div className="space-y-4">
@@ -29,12 +37,12 @@ export default function PropertyGallery({
         />
         <div className="absolute top-4 left-4 flex gap-2">
           <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-            Premium
+            {dict.premium}
           </span>
         </div>
         <button className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-nordic px-4 py-2 rounded-lg text-sm font-medium shadow-lg backdrop-blur transition-all flex items-center gap-2">
           <span className="material-icons text-sm">grid_view</span>
-          View All {images.length} Photos
+          {viewAllLabel}
         </button>
       </div>
 

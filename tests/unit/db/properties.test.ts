@@ -135,8 +135,8 @@ describe('lib/db/properties', () => {
 
       const mainCalls = sqlCalls.filter((c) => isMainQuery(c.text));
       const selectCall = mainCalls[0]!;
-      expect(selectCall.text).toContain('location ILIKE');
-      expect(selectCall.text).toContain('title ILIKE');
+      expect(selectCall.text).toContain('unaccent(location) ILIKE');
+      expect(selectCall.text).toContain('unaccent(title) ILIKE');
       expect(selectCall.text).toContain('price >=');
       expect(selectCall.text).toContain('price <=');
       expect(selectCall.text).toContain('beds >=');

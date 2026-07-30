@@ -382,8 +382,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sans cursor-pointer"
                 >
-                  <option value="sale">For Sale</option>
-                  <option value="rent">For Rent</option>
+                  <option value="sale">Venta</option>
+                  <option value="rent">Alquiler</option>
                 </select>
               </div>
             </div>
@@ -627,7 +627,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="text-xs text-gray-500 font-medium font-sans mb-1 block"
                   htmlFor="sqft"
                 >
-                  Area (sqft)
+                  Área (m²)
                 </label>
                 <input
                   id="sqft"

@@ -8,25 +8,70 @@
   },
   "hero": {
     "title_start": "Find your ",
-    "title_highlight": "sanctuary",
+    "title_highlight": "dream home",
     "title_end": ".",
     "subtitle": "Discover the best properties in the market",
     "search_placeholder": "Search by city, neighborhood, or address...",
-    "search_button": "Search"
+    "search_button": "Search",
+    "all": "All",
+    "filters": "Filters",
+    "penthouse": "Penthouse"
   },
   "common": {
     "featured_properties": "Featured Collections",
     "new_in_market": "New in Market",
+    "fresh_subtitle": "Fresh opportunities added this week.",
     "view_details": "View Details",
     "any_type": "Any Type",
+    "any": "Any",
+    "all": "All",
+    "for_rent": "For Rent",
+    "beds_label": "Beds",
+    "baths_label": "Baths",
     "property_types": {
       "villa": "Villa",
       "house": "House",
       "apartment": "Apartment",
-      "condo": "Condo"
+      "condo": "Condo",
+      "townhouse": "Townhouse",
+      "penthouse": "Penthouse"
     },
     "beds": "Beds",
-    "baths": "Baths"
+    "baths": "Baths",
+    "sqm": "m²"
+  },
+  "filters": {
+    "title": "Filters",
+    "location": "Location",
+    "location_placeholder": "City, neighborhood, or address",
+    "price_range": "Price Range",
+    "min_price": "Min Price",
+    "max_price": "Max Price",
+    "property_type": "Property Type",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "amenities_title": "Amenities & Features",
+    "amenities": {
+      "pool": "Swimming Pool",
+      "gym": "Gym",
+      "parking": "Parking",
+      "ac": "Air Conditioning",
+      "wifi": "High-speed Wifi",
+      "patio": "Patio / Terrace"
+    },
+    "clear_all": "Clear all filters",
+    "show_homes": "Show Homes",
+    "show_count_homes": "Show"
+  },
+  "gallery": {
+    "premium": "Premium",
+    "view_all_photos": "View All {count} Photos"
+  },
+  "featured": {
+    "subtitle": "Curated properties for the discerning eye.",
+    "view_all": "View all",
+    "new_arrival": "New Arrival",
+    "exclusive": "Exclusive"
   },
   "property_detail": {
     "schedule_visit": "Schedule Visit",

@@ -5,6 +5,7 @@ import type {
   UpdatePropertyInput,
 } from '@/types/db';
 import { getDb } from '@/lib/db/client';
+import { normalizeSearch } from '@/lib/utils/normalize';
 
 export interface ListPropertiesFilters {
   location?: string;
@@ -104,14 +105,17 @@ export async function listProperties(
   const pageSize_ = Math.max(1, pageSize);
   const offset = Math.max(0, (page - 1) * pageSize_);
 
+  const normalizedLocation = location && location !== '' ? normalizeSearch(location) : '';
+  const normalizedType = type && type !== 'Any Type' ? normalizeSearch(type) : '';
+
   const rows = (await sql<PropertyRow[]>`
     SELECT ${sql.unsafe(PROPERTY_COLUMNS)}
     FROM properties
     WHERE ${includeInactive ? sql.unsafe('true') : sql`is_active = true`}
-      ${location && location !== '' ? sql`AND (location ILIKE ${'%' + location + '%'} OR title ILIKE ${'%' + location + '%'})` : sql``}
+      ${normalizedLocation ? sql`AND (unaccent(location) ILIKE unaccent(${'%' + normalizedLocation + '%'}) OR unaccent(title) ILIKE unaccent(${'%' + normalizedLocation + '%'}))` : sql``}
       ${minPrice !== undefined ? sql`AND price >= ${minPrice}` : sql``}
       ${maxPrice !== undefined ? sql`AND price <= ${maxPrice}` : sql``}
-      ${type && type !== 'Any Type' ? sql`AND title ILIKE ${'%' + type + '%'}` : sql``}
+      ${normalizedType ? sql`AND unaccent(title) ILIKE unaccent(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
     ORDER BY created_at DESC
@@ -149,14 +153,17 @@ export async function countProperties(
     includeInactive = false,
   } = filters;
 
+  const normalizedLocation = location && location !== '' ? normalizeSearch(location) : '';
+  const normalizedType = type && type !== 'Any Type' ? normalizeSearch(type) : '';
+
   const rows = (await sql<{ count: number }[]>`
     SELECT COUNT(*)::int AS count
     FROM properties
     WHERE ${includeInactive ? sql.unsafe('true') : sql`is_active = true`}
-      ${location && location !== '' ? sql`AND (location ILIKE ${'%' + location + '%'} OR title ILIKE ${'%' + location + '%'})` : sql``}
+      ${normalizedLocation ? sql`AND (unaccent(location) ILIKE unaccent(${'%' + normalizedLocation + '%'}) OR unaccent(title) ILIKE unaccent(${'%' + normalizedLocation + '%'}))` : sql``}
       ${minPrice !== undefined ? sql`AND price >= ${minPrice}` : sql``}
       ${maxPrice !== undefined ? sql`AND price <= ${maxPrice}` : sql``}
-      ${type && type !== 'Any Type' ? sql`AND title ILIKE ${'%' + type + '%'}` : sql``}
+      ${normalizedType ? sql`AND unaccent(title) ILIKE unaccent(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
   `) as { count: number }[];
