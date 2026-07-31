@@ -39,7 +39,7 @@ export default function PropertyGallery({
         />
         <div className="absolute top-4 left-4 flex gap-2">
           {isFeatured && (
-            <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+            <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded uppercase tracking-wider shadow-sm">
               {dict.premium}
             </span>
           )}
