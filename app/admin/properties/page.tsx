@@ -1,5 +1,7 @@
 import { listProperties, countProperties } from '@/lib/db/properties';
 import { togglePropertyActiveAction } from './actions';
+import { cookies } from 'next/headers';
+import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
 
 const PAGE_SIZE = 10;
@@ -26,16 +28,27 @@ export default async function AdminPropertiesPage(props: {
   const totalListings = totalCount;
   const inactiveCount = properties.filter((p) => !p.is_active).length;
 
+  // i18n: read locale cookie and get the dashboard dictionary section.
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'es';
+  const t = getDictionary(locale).dashboard.properties_list;
+
+  // Paginación: una sola key con placeholders {from}/{to}/{total}.
+  const paginationLabel = t.pagination.showing
+    .replace('{from}', String(from + 1))
+    .replace('{to}', String(Math.min(to + 1, totalListings)))
+    .replace('{total}', String(totalListings));
+
   return (
     <main className="grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-nordic tracking-tight">
-            My Properties
+            {t.title}
           </h1>
           <p className="text-nordic/60 mt-1 text-sm">
-            Manage your portfolio and track performance.
+            {t.subtitle}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -43,8 +56,7 @@ export default async function AdminPropertiesPage(props: {
             href="/admin/properties/create"
             className="bg-mosque hover:bg-mosque/90 text-white px-5 py-2.5 rounded-lg text-sm font-medium shadow-md shadow-mosque/20 transition-all transform hover:-translate-y-0.5 inline-flex items-center gap-2"
           >
-            <span className="material-icons text-base">add</span> Add New
-            Property
+            <span className="material-icons text-base">add</span> {t.add_new_property}
           </Link>
         </div>
       </div>
@@ -53,7 +65,9 @@ export default async function AdminPropertiesPage(props: {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-5 rounded-xl border border-nordic/10 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-nordic/60">Total Listings</p>
+            <p className="text-sm font-medium text-nordic/60">
+              {t.stats.total_listings}
+            </p>
             <p className="text-2xl font-bold text-nordic mt-1">
               {totalListings}
             </p>
@@ -65,7 +79,7 @@ export default async function AdminPropertiesPage(props: {
         <div className="bg-white p-5 rounded-xl border border-nordic/10 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-nordic/60">
-              Active Listings
+              {t.stats.active_listings}
             </p>
             <p className="text-2xl font-bold text-nordic mt-1">{activeCount}</p>
           </div>
@@ -76,7 +90,7 @@ export default async function AdminPropertiesPage(props: {
         <div className="bg-white p-5 rounded-xl border border-nordic/10 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-nordic/60">
-              Inactive Listings
+              {t.stats.inactive_listings}
             </p>
             <p className="text-2xl font-bold text-nordic mt-1">
               {inactiveCount}
@@ -92,10 +106,10 @@ export default async function AdminPropertiesPage(props: {
       <div className="bg-white rounded-xl shadow-sm border border-nordic/10 overflow-hidden">
         {/* Table Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 border-b border-nordic/10 text-xs font-semibold text-nordic/60 uppercase tracking-wider">
-          <div className="col-span-6">Property Details</div>
-          <div className="col-span-2">Price</div>
-          <div className="col-span-2">Status</div>
-          <div className="col-span-2 text-right">Actions</div>
+          <div className="col-span-6">{t.table.property_details}</div>
+          <div className="col-span-2">{t.table.price}</div>
+          <div className="col-span-2">{t.table.status}</div>
+          <div className="col-span-2 text-right">{t.table.actions}</div>
         </div>
 
         {properties.map((property) => (
@@ -137,12 +151,12 @@ export default async function AdminPropertiesPage(props: {
                 <div className="flex items-center gap-3 mt-1.5 text-xs text-nordic/50">
                   <span className="flex items-center gap-1">
                     <span className="material-icons text-[14px]">bed</span>{' '}
-                    {property.beds || 0} Hab
+                    {property.beds || 0} {t.beds}
                   </span>
                   <span className="w-1 h-1 rounded-full bg-nordic/20"></span>
                   <span className="flex items-center gap-1">
                     <span className="material-icons text-[14px]">bathtub</span>{' '}
-                    {property.baths || 0} Baños
+                    {property.baths || 0} {t.baths}
                   </span>
                 </div>
               </div>
@@ -153,8 +167,8 @@ export default async function AdminPropertiesPage(props: {
               <div className="text-base font-semibold text-nordic">
                 €{property.price.toLocaleString()}
               </div>
-              <div className="text-xs text-nordic/50 capitalize">
-                {property.type}
+              <div className="text-xs text-nordic/50">
+                {property.type === 'sale' ? t.type_sale : t.type_rent}
               </div>
             </div>
 
@@ -163,18 +177,18 @@ export default async function AdminPropertiesPage(props: {
               {property.is_active ? (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
-                  Active
+                  {t.badges.active}
                 </span>
               ) : (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
-                  Inactive
+                  {t.badges.inactive}
                 </span>
               )}
               {property.is_featured && (
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-hint-of-green text-mosque border border-mosque/10">
                   <span className="w-1.5 h-1.5 rounded-full bg-mosque mr-1.5"></span>
-                  Featured
+                  {t.badges.featured}
                 </span>
               )}
             </div>
@@ -184,7 +198,7 @@ export default async function AdminPropertiesPage(props: {
               <Link
                 href={`/admin/properties/${property.slug ?? property.id}/edit`}
                 className="p-2 rounded-lg text-nordic/40 hover:text-mosque hover:bg-hint-of-green/50 transition-all"
-                title="Edit Property"
+                title={t.titles.edit_property}
               >
                 <span className="material-icons text-xl">edit</span>
               </Link>
@@ -200,8 +214,8 @@ export default async function AdminPropertiesPage(props: {
                   type="submit"
                   title={
                     property.is_active
-                      ? 'Deactivate Property'
-                      : 'Activate Property'
+                      ? t.titles.deactivate_property
+                      : t.titles.activate_property
                   }
                   className={`p-2 rounded-lg transition-all ${
                     property.is_active
@@ -220,23 +234,14 @@ export default async function AdminPropertiesPage(props: {
 
         {properties.length === 0 && (
           <div className="text-center py-12 text-sm text-nordic/50">
-            No properties found.
+            {t.empty}
           </div>
         )}
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-nordic/10 bg-gray-50/50">
-            <div className="text-sm text-nordic/60">
-              Showing{' '}
-              <span className="font-medium text-nordic">{from + 1}</span> to{' '}
-              <span className="font-medium text-nordic">
-                {Math.min(to + 1, totalListings)}
-              </span>{' '}
-              of{' '}
-              <span className="font-medium text-nordic">{totalListings}</span>{' '}
-              results
-            </div>
+            <div className="text-sm text-nordic/60">{paginationLabel}</div>
             <div className="flex items-center gap-2">
               <Link
                 href={`/admin/properties?page=${Math.max(1, page - 1)}`}

@@ -119,5 +119,165 @@
       "Security System": "Security System",
       "Elevator": "Elevator"
     }
+  },
+  "dashboard": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "properties": "Properties",
+      "users": "Users",
+      "administrator": "Administrator"
+    },
+    "layout": {
+      "forbidden_title": "403",
+      "forbidden_message": "You do not have permission to access this area."
+    },
+    "properties_list": {
+      "title": "My Properties",
+      "subtitle": "Manage your portfolio and track performance.",
+      "add_new_property": "Add New Property",
+      "stats": {
+        "total_listings": "Total Listings",
+        "active_listings": "Active Listings",
+        "inactive_listings": "Inactive Listings"
+      },
+      "table": {
+        "property_details": "Property Details",
+        "price": "Price",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "badges": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "featured": "Featured"
+      },
+      "titles": {
+        "edit_property": "Edit Property",
+        "activate_property": "Activate Property",
+        "deactivate_property": "Deactivate Property"
+      },
+      "empty": "No properties found.",
+      "pagination": {
+        "showing": "Showing {from} to {to} of {total} results"
+      },
+      "beds": "Beds",
+      "baths": "Baths",
+      "type_sale": "Sale",
+      "type_rent": "Rent"
+    },
+    "property_form": {
+      "breadcrumb": {
+        "properties": "Properties",
+        "add_new": "Add New",
+        "edit": "Edit {title}"
+      },
+      "basic_information": "Basic Information",
+      "description_title": "Description",
+      "gallery": "Gallery",
+      "location": "Location",
+      "details": "Details",
+      "amenities_title": "Amenities",
+      "featured": "Featured",
+      "active": "Active",
+      "inactive": "Inactive",
+      "property_title": "Property Title",
+      "price": "Price",
+      "property_type": "Property Type",
+      "type_sale": "Sale",
+      "type_rent": "Rent",
+      "address": "Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "map_location": "Map Location",
+      "year_built": "Year Built",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "parking": "Parking",
+      "area_label": "Area (m²)",
+      "file_formats": "JPG, PNG, WEBP",
+      "drop_zone": "Click or drag images here",
+      "max_size": "Max file size 5MB per image",
+      "uploading": "Uploading...",
+      "main": "Main",
+      "cancel": "Cancel",
+      "save": "Save",
+      "save_property": "Save Property",
+      "character_counter": "{count} / 2000 characters",
+      "amenities_list": {
+        "Swimming Pool": "Swimming Pool",
+        "Garden": "Garden",
+        "Air Conditioning": "Air Conditioning",
+        "Smart Home": "Smart Home",
+        "Balcony": "Balcony",
+        "Gym": "Gym",
+        "Security System": "Security System",
+        "Elevator": "Elevator"
+      },
+      "format_bold": "Bold",
+      "format_italic": "Italic",
+      "format_list": "List",
+      "breadcrumb_aria": "Breadcrumb",
+      "year_placeholder": "YYYY",
+      "errors": {
+        "invalid_file_type": "Invalid file type \"{name}\". Accepted: JPEG, PNG, WEBP, GIF.",
+        "file_exceeds_size": "File \"{name}\" exceeds maximum size of 5MB.",
+        "failed_to_optimize": "Failed to optimize image.",
+        "failed_to_upload": "Failed to upload image to Cloudinary.",
+        "failed_to_save": "Failed to save property."
+      }
+    },
+    "users_list": {
+      "title": "User Directory",
+      "subtitle": "Manage user access and roles for your properties.",
+      "search_placeholder": "Search by name, email...",
+      "add_user": "Add User",
+      "tabs": {
+        "all": "All Users",
+        "agents": "Agents",
+        "brokers": "Brokers",
+        "admins": "Admins"
+      },
+      "table": {
+        "user_details": "User Details",
+        "role_status": "Role & Status",
+        "performance": "Performance",
+        "actions": "Actions"
+      },
+      "badges": {
+        "administrator": "Administrator",
+        "user": "User",
+        "active": "Active"
+      },
+      "performance": {
+        "properties": "Properties",
+        "access_level": "Access Level"
+      },
+      "actions": {
+        "make_admin": "Make Admin",
+        "remove_admin": "Remove Admin"
+      },
+      "empty": "No users found.",
+      "pagination": {
+        "showing": "Showing {from} to {to} of {total} results"
+      },
+      "unknown_user": "Unknown User"
+    },
+    "common": {
+      "required": "required",
+      "fields_mandatory": "Fields marked with * are mandatory.",
+      "page_title_create": "Add New Property",
+      "page_subtitle_create": "Fill in the details below to create a new listing. Fields marked with * are mandatory.",
+      "page_title_edit": "Edit Property",
+      "page_subtitle_edit": "Update the details below to modify the existing listing. Fields marked with * are mandatory.",
+      "forbidden_title": "403",
+      "forbidden_message": "You do not have permission to access this area."
+    },
+    "errors": {
+      "save_failed": "Failed to save property.",
+      "upload_failed": "Failed to upload image to Cloudinary.",
+      "invalid_file_type": "Invalid file type. Accepted: JPEG, PNG, WEBP, GIF.",
+      "file_exceeds_size": "File exceeds maximum size of 5MB.",
+      "no_file": "No file provided."
+    }
   }
 }

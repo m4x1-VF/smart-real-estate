@@ -258,6 +258,49 @@
       ],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 8,
+      "name": "admin-i18n",
+      "title": "Internacionalización del panel de administración (/admin/*)",
+      "description": "Migrar todos los strings en inglés hardcodeados del panel /admin/* al sistema i18n existente (es/en/fr). Hoy el sistema i18n solo cubre la parte pública: los textos del admin (layout 403, AdminNav, listados de propiedades y usuarios, formulario de crear/editar propiedad, badges de estado, mensajes de paginación, errores de upload, etc.) están en inglés directamente en JSX. Se debe agregar la sección `dashboard` al tipo Dictionary y a los 3 diccionarios (es/en/fr), y reemplazar los hardcodeados con `t('dashboard.*')`. Como `defaultLang = 'es'`, el admin se ve en español por defecto, y se traduce al cambiar de locale (igual que el resto de la app).",
+      "scope": "Solo panel /admin/* y components/admin/*. NO toca páginas públicas (/, /properties/[slug], /login, /signup, /profile, /saved). NO agrega nuevos locales. NO cambia el patrón i18n existente (cookie NEXT_LOCALE + getDictionary).",
+      "acceptance": [
+        "Sección `dashboard` agregada al tipo Dictionary en `types/i18n.ts` con subsecciones para nav, layout, properties (listado + form), users (listado), errors y common.",
+        "Diccionarios `data/dictionaries/{es,en,fr}.json` contienen la sección `dashboard` con traducciones equivalentes en los 3 idiomas.",
+        "Cero strings en inglés hardcodeados visibles al usuario en `app/admin/**` y `components/admin/**` (excepto nombres técnicos de campos, clases CSS, aria-labels con fines de testing).",
+        "Default locale 'es' muestra todos los textos del admin en español (titles, subtítulos, stats, badges Active/Inactive/Featured, paginación, tabs, search placeholder, etc.).",
+        "Cambiar a locale 'en' o 'fr' traduce el admin completo de forma consistente.",
+        "AdminNav (client component) y PropertyForm (client component) reciben el diccionario y lo usan (via prop o via un hook/provider que lea la cookie NEXT_LOCALE).",
+        "Los server components del admin (layout, page de listado, page de crear/editar) leen el locale y pasan el dict al cliente o lo usan directamente.",
+        "PropertyForm NO rompe la lógica de upload a Cloudinary, validación de imagen ni manejo de errores (solo cambia strings de error).",
+        "Build pasa (`pnpm build`) y suite de tests existente (`pnpm test:run`) sigue verde.",
+        "`docs/architecture.md` actualizado: la sección i18n menciona que el admin también usa el sistema.",
+        "Tests L3 (componentes) y L2 (cuando aplique) para AdminNav, listados y PropertyForm pasan con traducciones correctas.",
+        "Trazabilidad R↔test documentada en `progress/impl_admin-i18n.md`."
+      ],
+      "out_of_scope": [
+        "Traducción de páginas públicas (ya están traducidas vía i18n en features previas).",
+        "Migración de páginas /login, /signup, /profile, /saved al sistema i18n (feature aparte si no están).",
+        "Agregar nuevos locales (solo se mantienen es/en/fr).",
+        "Cambio del patrón i18n (cookie + getDictionary) — se reutiliza tal cual.",
+        "Migración del footer del layout admin si solo tiene fecha dinámica (ya está en español).",
+        "Traducción de mensajes de error de better-auth/Zod que se renderizan via `authClient`."
+      ],
+      "decisions": [
+        "Reusar sistema i18n existente: cookie NEXT_LOCALE + getDictionary() desde lib/i18n.ts — sin nuevo mecanismo.",
+        "Sección 'dashboard' en Dictionary (no 'admin') — coincide con el término que el usuario usó y con el label del nav ('Dashboard').",
+        "PropertyForm recibe el dict via prop (ya es client component); no se introduce un Context nuevo para no inflar el bundle del admin.",
+        "AdminNav recibe el dict via prop desde layout (que es server component y puede leer cookies).",
+        "Strings técnicos (field names, type values como 'sale'/'rent', class names) NO se traducen; solo strings visibles al usuario.",
+        "Errores de PropertyForm se traducen en el cliente (en el try/catch del componente), no en la server action. La action sigue tirando Error en inglés como contrato de programador.",
+        "AMENITIES_LIST mantiene las 8 keys en inglés que ya se persisten en properties.amenities[] (text[]). Solo se traduce el label visible vía dashboard.property_form.amenities_list.",
+        "Paginación: una sola key con placeholders {from}/{to}/{total} en dashboard.*.pagination.showing.",
+        "Access Level 'Level 5' / 'Level 1' del performance de users quedan como literales técnicos (R3 los excluye). No se mueven al dict."
+      ],
+      "open_questions": [],
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

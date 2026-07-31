@@ -4,6 +4,8 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db/client';
+import { cookies } from 'next/headers';
+import { getDictionary } from '@/lib/i18n';
 
 export default async function AdminLayout({
   children,
@@ -25,13 +27,20 @@ export default async function AdminLayout({
   >`SELECT u.email FROM user_roles ur JOIN public."user" u ON u.id = ur.user_id WHERE ur.role = 'admin'`;
   const isAdmin = admins.some((a) => a.email === session.user.email);
 
+  // Read locale and get the dashboard dictionary section.
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'es';
+  const t = getDictionary(locale).dashboard;
+
   if (!isAdmin) {
     return (
       <div className="bg-clear-day text-nordic font-display min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">403</h1>
+          <h1 className="text-4xl font-bold mb-4">
+            {t.layout.forbidden_title}
+          </h1>
           <p className="text-nordic-muted">
-            You do not have permission to access this area.
+            {t.layout.forbidden_message}
           </p>
         </div>
       </div>
@@ -41,7 +50,7 @@ export default async function AdminLayout({
   return (
     <div className="bg-clear-day text-nordic font-display min-h-screen flex flex-col antialiased">
       {/* Navbar */}
-      <AdminNav user={session.user} />
+      <AdminNav user={session.user} t={t.nav} />
 
       {/* Main content */}
       <div className="grow flex flex-col w-full">{children}</div>

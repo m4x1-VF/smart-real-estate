@@ -407,3 +407,83 @@
 
 ---
 
+## Sesión 2026-07-31 — `admin-i18n` (feature #8) — DONE
+
+**Estado al cerrar:** feature #8 `done`. 23/23 tareas completadas, 19/19 R verificados.
+
+### Flujo SDD seguido
+1. `spec_author` redactó spec Kiro-style: 19 R (EARS) + 23 T
+2. Humano ratificó 4 open questions técnicas (errores en cliente, AMENITIES_LIST keys en inglés persistidas, paginación string única con placeholders, Access Level como literal técnico)
+3. `implementer` ejecutó T1–T23
+4. `reviewer` validó 19/19 R + 4/4 decisiones ratificadas + paridad de keys + E2E manual pendiente (recomendado al humano)
+
+### Decisiones técnicas
+- Reusar sistema i18n existente (`cookie NEXT_LOCALE` + `getDictionary()`) — sin nuevo mecanismo
+- Sección `dashboard` en `Dictionary` (no `admin`) — coincide con el término del usuario
+- Client components (`AdminNav`, `PropertyForm`) reciben sub-dict via prop — sin React Context nuevo
+- Server components del admin leen cookie + `getDictionary()` con el patrón de `app/page.tsx`
+- Errores de `PropertyForm` se traducen en cliente (try/catch), no en la server action
+- `AMENITIES_LIST` mantiene las 8 keys en inglés persistidas en `properties.amenities[]` — solo label visible traducido
+- Paginación: una sola key `dashboard.*.pagination.showing` con placeholders `{from}`/`{to}`/`{total}`
+- `Level 5` / `Level 1` del performance quedan como literales técnicos (excluidos por R3)
+- 9 keys extra añadidas al dict (más allá del spec inicial) para cubrir strings user-visible que R3 exigía: `type_sale`, `type_rent`, `area_label`, `format_bold`, `format_italic`, `format_list`, `breadcrumb_aria`, `year_placeholder`, `unknown_user`
+
+### Archivos modificados / creados
+**Modificados (13):**
+- `types/i18n.ts` — `Dictionary` + 7 subinterfaces `Dashboard*Dict`
+- `data/dictionaries/{es,en,fr}.json` — sección `dashboard` agregada
+- `app/admin/layout.tsx` — cookie + dict + pasa `t.nav` a `AdminNav`
+- `app/admin/properties/page.tsx` — header, stats, tabla, badges, paginación
+- `app/admin/properties/create/page.tsx` — breadcrumb + título/subtítulo
+- `app/admin/properties/[id]/edit/page.tsx` — breadcrumb + título/subtítulo
+- `app/admin/users/page.tsx` — header, search, tabs, tabla, badges, performance, actions, paginación
+- `components/admin/AdminNav.tsx` — prop `t: DashboardNavDict`
+- `components/admin/PropertyForm.tsx` — prop `t: DashboardPropertyFormDict`, ~30 strings + 5 errores traducidos
+- `docs/architecture.md` — §i18n — Detalles actualizado (lista archivos del admin)
+- `specs/admin-i18n/tasks.md` — T1–T23 marcados `[x]`
+- `feature_list.json` — feature #8 → `done`
+- `progress/current.md` — gestionado durante la sesión
+
+**Creados (11):**
+- `specs/admin-i18n/requirements.md` (19 R)
+- `specs/admin-i18n/design.md` (decisiones)
+- `specs/admin-i18n/tasks.md` (23 T)
+- `tests/integration/i18n/dashboard-parity.test.ts` (8 tests de paridad es/en/fr)
+- `tests/integration/components/admin/AdminNav.test.tsx` (4 tests L3)
+- `tests/integration/components/admin/PropertyForm.test.tsx` (4 tests L3)
+- `tests/integration/admin/properties.test.tsx` (4 tests L3)
+- `tests/integration/admin/users.test.tsx` (5 tests L3)
+- `tests/integration/admin/layout.test.tsx` (5 tests L3)
+- `progress/impl_admin-i18n.md` (mapa R↔test)
+- `progress/review_admin-i18n.md` (verdict APPROVED)
+
+### Verificación
+- Tests: 130/130 verde (100 baseline + 30 nuevos) — 2 corridas consecutivas sin flakiness
+- Build: `pnpm build` PASS (10.8s, 14/14 static pages)
+- Reviewer: APPROVED — todos los R1–R19 validados contra tests concretos
+- E2E manual: **pendiente** — el reviewer CLI no puede levantar `pnpm dev` + login admin + cambiar `NEXT_LOCALE`. Recomendado al humano para próxima sesión.
+
+### Patrón de tests para server components (reutilizable)
+Para testear server components en este proyecto, mockear por test: `next/headers` + `next/navigation` + `next/cache` + `next/link` + `@/lib/i18n` + capa de datos + actions. Usar `vi.clearAllMocks()` (no `vi.restoreAllMocks()`) en `afterEach` para no romper el `mockImplementation` del factory de `vi.mock`.
+
+---
+
+## Sesión 2026-07-31 — Bugfix post-`admin-i18n`: traducción de `property.type` en el listing
+
+**Estado:** fix aplicado. 132/132 tests verde, build PASS.
+
+### Bug
+`app/admin/properties/page.tsx:171` renderizaba `{property.type}` directo desde la DB con `className="capitalize"`, mostrando "Sale" / "Rent" en el admin en español. Detectado en e2e manual por el humano.
+
+### Causa raíz
+El spec R3 cubría strings hardcodeados pero no valores que vienen de la DB. Los enums (`'sale'`, `'rent'`) no se traducen automáticamente — necesitan mapearse explícitamente en el render. El reviewer no lo agarró con grep porque no era un literal hardcodeado.
+
+### Fix
+- `types/i18n.ts` — `type_sale` / `type_rent` agregados a `DashboardPropertiesListDict`.
+- `data/dictionaries/{es,en,fr}.json` — 2 keys nuevas en `properties_list` (paridad).
+- `app/admin/properties/page.tsx` — `{property.type === 'sale' ? t.type_sale : t.type_rent}`; se sacó `capitalize` porque la traducción ya viene capitalizada.
+- `tests/integration/admin/properties.test.tsx` — 2 tests de regresión (uno por cada valor del enum).
+
+### Lección
+Cuando un render muestra un valor de DB que tiene semántica user-facing (enum, status, label), SIEMPRE mapearlo via dict — no renderizarlo crudo. El grep de "no hardcoded English strings" no cubre este caso; hace falta una regla explícita: "ningún valor de enum persistido se renderiza directo, siempre via map() o ternario con dict".
+

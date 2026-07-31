@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { authClient } from '@/lib/auth/client';
 import { generateInitialsAvatar } from '@/lib/utils/avatar';
+import type { DashboardNavDict } from '@/types/i18n';
 
 interface AdminNavUser {
   id: string;
@@ -16,9 +17,10 @@ interface AdminNavUser {
 
 interface AdminNavProps {
   user: AdminNavUser;
+  t: DashboardNavDict;
 }
 
-export default function AdminNav({ user }: AdminNavProps) {
+export default function AdminNav({ user, t }: AdminNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -72,19 +74,19 @@ export default function AdminNav({ user }: AdminNavProps) {
               href="/admin"
               className={`flex items-center px-1 text-sm transition-colors h-full ${isActive('/admin')}`}
             >
-              Dashboard
+              {t.dashboard}
             </Link>
             <Link
               href="/admin/properties"
               className={`flex items-center px-1 text-sm transition-colors h-full ${isActive('/admin/properties')}`}
             >
-              Properties
+              {t.properties}
             </Link>
             <Link
               href="/admin/users"
               className={`flex items-center px-1 text-sm transition-colors h-full ${isActive('/admin/users')}`}
             >
-              Users
+              {t.users}
             </Link>
           </div>
         </div>
@@ -101,7 +103,7 @@ export default function AdminNav({ user }: AdminNavProps) {
               <span className="text-sm font-semibold text-nordic">
                 {user.email}
               </span>
-              <span className="text-xs text-nordic/60">Administrator</span>
+              <span className="text-xs text-nordic/60">{t.administrator}</span>
             </div>
 
             <button

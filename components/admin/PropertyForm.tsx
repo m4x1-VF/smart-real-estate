@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Property } from '@/types/db';
+import type { DashboardPropertyFormDict } from '@/types/i18n';
 import { saveProperty, uploadImage } from '@/app/admin/properties/actions';
 import Image from 'next/image';
 import DynamicPropertyMap from '@/components/DynamicPropertyMap';
@@ -14,9 +15,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 interface PropertyFormProps {
   initialData?: Property;
+  t: DashboardPropertyFormDict;
 }
 
-export default function PropertyForm({ initialData }: PropertyFormProps) {
+export default function PropertyForm({ initialData, t }: PropertyFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
 
@@ -101,15 +103,13 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     for (const file of filesArray) {
       // Client-side validation: MIME type
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-        setError(
-          `Invalid file type "${file.name}". Accepted: JPEG, PNG, WEBP, GIF.`,
-        );
+        setError(t.errors.invalid_file_type.replace('{name}', file.name));
         continue;
       }
 
       // Client-side validation: file size
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File "${file.name}" exceeds maximum size of 5MB.`);
+        setError(t.errors.file_exceeds_size.replace('{name}', file.name));
         continue;
       }
 
@@ -119,7 +119,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         optimizedBlob = await optimizeImage(file);
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : 'Failed to optimize image.';
+          err instanceof Error ? err.message : t.errors.failed_to_optimize;
         setError(message);
         continue;
       }
@@ -173,7 +173,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         });
 
         const message =
-          err instanceof Error ? err.message : 'Failed to upload image.';
+          err instanceof Error ? err.message : t.errors.failed_to_upload;
         setError(message);
       } finally {
         // Clean up uploading state — find by placeholder URL position
@@ -252,7 +252,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       router.push('/admin/properties');
       router.refresh();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save property.';
+      const message = err instanceof Error ? err.message : t.errors.failed_to_save;
       console.error('Error saving property:', err);
       setError(message);
     } finally {
@@ -290,7 +290,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 <span className="material-icons text-lg">info</span>
               </div>
               <h2 className="text-xl font-bold text-nordic">
-                Basic Information
+                {t.basic_information}
               </h2>
             </div>
             <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="w-4 h-4 text-mosque border-gray-300 rounded focus:ring-mosque"
                 />
                 <span className="text-sm font-medium text-nordic transition-colors">
-                  Featured
+                  {t.featured}
                 </span>
               </label>
               <label
@@ -321,7 +321,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="w-4 h-4 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">
-                  {formData.is_active ? 'Active' : 'Inactive'}
+                  {formData.is_active ? t.active : t.inactive}
                 </span>
               </label>
             </div>
@@ -332,7 +332,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                 htmlFor="title"
               >
-                Property Title <span className="text-red-500">*</span>
+                {t.property_title} <span className="text-red-500">*</span>
               </label>
               <input
                 id="title"
@@ -350,7 +350,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                   htmlFor="price"
                 >
-                  Price <span className="text-red-500">*</span>
+                  {t.price} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-sans text-sm">
@@ -374,7 +374,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                   htmlFor="type"
                 >
-                  Property Type
+                  {t.property_type}
                 </label>
                 <select
                   id="type"
@@ -382,8 +382,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sans cursor-pointer"
                 >
-                  <option value="sale">Venta</option>
-                  <option value="rent">Alquiler</option>
+                  <option value="sale">{t.type_sale}</option>
+                  <option value="rent">{t.type_rent}</option>
                 </select>
               </div>
             </div>
@@ -395,28 +395,28 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
             <div className="w-8 h-8 rounded-full bg-hint-of-green flex items-center justify-center text-nordic">
               <span className="material-icons text-lg">description</span>
             </div>
-            <h2 className="text-xl font-bold text-nordic">Description</h2>
+            <h2 className="text-xl font-bold text-nordic">{t.description_title}</h2>
           </div>
           <div className="p-8">
             <div className="mb-3 flex gap-2 border-b border-gray-100 pb-2">
               <button
                 type="button"
                 className="p-1.5 text-gray-400 hover:text-nordic hover:bg-gray-50 rounded transition-colors"
-                title="Bold"
+                title={t.format_bold}
               >
                 <span className="material-icons text-lg">format_bold</span>
               </button>
               <button
                 type="button"
                 className="p-1.5 text-gray-400 hover:text-nordic hover:bg-gray-50 rounded transition-colors"
-                title="Italic"
+                title={t.format_italic}
               >
                 <span className="material-icons text-lg">format_italic</span>
               </button>
               <button
                 type="button"
                 className="p-1.5 text-gray-400 hover:text-nordic hover:bg-gray-50 rounded transition-colors"
-                title="List"
+                title={t.format_list}
               >
                 <span className="material-icons text-lg">
                   format_list_bulleted
@@ -431,7 +431,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
               placeholder="Describe the property features, neighborhood, and unique selling points..."
             />
             <div className="mt-2 text-right text-xs text-gray-400 font-sans">
-              {(formData.description || '').length} / 2000 characters
+              {t.character_counter.replace('{count}', String((formData.description || '').length))}
             </div>
           </div>
         </div>
@@ -442,10 +442,10 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
               <div className="w-8 h-8 rounded-full bg-hint-of-green flex items-center justify-center text-nordic">
                 <span className="material-icons text-lg">image</span>
               </div>
-              <h2 className="text-xl font-bold text-nordic">Gallery</h2>
+              <h2 className="text-xl font-bold text-nordic">{t.gallery}</h2>
             </div>
             <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded font-sans">
-              JPG, PNG, WEBP
+              {t.file_formats}
             </span>
           </div>
           <div className="p-8">
@@ -463,10 +463,10 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 </div>
                 <div className="space-y-1">
                   <p className="text-base font-medium text-nordic font-sans">
-                    Click or drag images here
+                    {t.drop_zone}
                   </p>
                   <p className="text-xs text-gray-400 font-sans">
-                    Max file size 5MB per image
+                    {t.max_size}
                   </p>
                 </div>
               </div>
@@ -492,7 +492,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                             refresh
                           </span>
                           <span className="text-white text-xs font-medium font-sans">
-                            Uploading...
+                            {t.uploading}
                           </span>
                         </div>
                       </div>
@@ -510,7 +510,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                     )}
                     {index === 0 && !uploadingIndices.has(index) && (
                       <span className="absolute top-2 left-2 bg-mosque text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm font-sans uppercase tracking-wider">
-                        Main
+                        {t.main}
                       </span>
                     )}
                   </div>
@@ -527,7 +527,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
             <div className="w-8 h-8 rounded-full bg-hint-of-green flex items-center justify-center text-nordic">
               <span className="material-icons text-lg">place</span>
             </div>
-            <h2 className="text-lg font-bold text-nordic">Location</h2>
+            <h2 className="text-lg font-bold text-nordic">{t.location}</h2>
           </div>
           <div className="p-6 space-y-4">
             <div>
@@ -535,7 +535,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                 htmlFor="location"
               >
-                Address <span className="text-red-500">*</span>
+                {t.address} <span className="text-red-500">*</span>
               </label>
               <input
                 id="location"
@@ -553,7 +553,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                   htmlFor="lat"
                 >
-                  Latitude
+                  {t.latitude}
                 </label>
                 <input
                   id="lat"
@@ -570,7 +570,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="block text-sm font-medium text-nordic mb-1.5 font-sans"
                   htmlFor="lng"
                 >
-                  Longitude
+                  {t.longitude}
                 </label>
                 <input
                   id="lng"
@@ -605,7 +605,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                     <span className="material-icons text-sm text-mosque">
                       map
                     </span>{' '}
-                    Map Location
+                    {t.map_location}
                   </span>
                 </div>
               </div>
@@ -618,7 +618,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
             <div className="w-8 h-8 rounded-full bg-hint-of-green flex items-center justify-center text-nordic">
               <span className="material-icons text-lg">straighten</span>
             </div>
-            <h2 className="text-lg font-bold text-nordic">Details</h2>
+            <h2 className="text-lg font-bold text-nordic">{t.details}</h2>
           </div>
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
@@ -627,7 +627,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="text-xs text-gray-500 font-medium font-sans mb-1 block"
                   htmlFor="sqft"
                 >
-                  Área (m²)
+                  {t.area_label}
                 </label>
                 <input
                   id="sqft"
@@ -644,7 +644,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   className="text-xs text-gray-500 font-medium font-sans mb-1 block"
                   htmlFor="year_built"
                 >
-                  Year Built
+                  {t.year_built}
                 </label>
                 <input
                   id="year_built"
@@ -652,7 +652,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   value={formData.year_built ?? ''}
                   onChange={handleInputChange}
                   className="w-full text-left px-3 py-2 rounded border-gray-200 bg-gray-50 text-nordic focus:bg-white focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sans text-sm"
-                  placeholder="YYYY"
+                  placeholder={t.year_placeholder}
                 />
               </div>
             </div>
@@ -665,7 +665,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   <span className="material-icons text-gray-400 text-sm">
                     bed
                   </span>{' '}
-                  Bedrooms
+                  {t.bedrooms}
                 </label>
                 <div className="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
                   <button
@@ -696,7 +696,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   <span className="material-icons text-gray-400 text-sm">
                     shower
                   </span>{' '}
-                  Bathrooms
+                  {t.bathrooms}
                 </label>
                 <div className="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
                   <button
@@ -727,7 +727,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   <span className="material-icons text-gray-400 text-sm">
                     directions_car
                   </span>{' '}
-                  Parking
+                  {t.parking}
                 </label>
                 <div className="flex items-center border border-gray-200 rounded-md overflow-hidden bg-white shadow-sm">
                   <button
@@ -758,7 +758,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
             <div>
               <h3 className="text-sm font-bold text-nordic mb-3 font-sans uppercase tracking-wider">
-                Amenities
+                {t.amenities_title}
               </h3>
               <div className="space-y-2">
                 {AMENITIES_LIST.map((amenity) => (
@@ -773,7 +773,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                       className="w-4 h-4 text-mosque border-gray-300 rounded focus:ring-mosque"
                     />
                     <span className="text-sm text-gray-700 font-sans group-hover:text-nordic transition-colors">
-                      {amenity}
+                      {t.amenities_list[amenity] ?? amenity}
                     </span>
                   </label>
                 ))}
@@ -789,7 +789,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           onClick={() => router.push('/admin/properties')}
           className="flex-1 py-3 rounded-lg border border-gray-300 bg-white text-nordic font-medium font-sans"
         >
-          Cancel
+          {t.cancel}
         </button>
         <button
           type="submit"
@@ -799,7 +799,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           {isLoading ? (
             <span className="material-icons animate-spin">refresh</span>
           ) : (
-            'Save'
+            t.save
           )}
         </button>
       </div>
@@ -811,7 +811,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           onClick={() => router.back()}
           className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-nordic font-medium hover:bg-gray-50 transition-colors"
         >
-          Cancel
+          {t.cancel}
         </button>
         <button
           type="submit"
@@ -823,7 +823,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           ) : (
             <>
               <span className="material-icons text-sm">save</span>
-              Save Property
+              {t.save_property}
             </>
           )}
         </button>

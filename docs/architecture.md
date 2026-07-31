@@ -266,6 +266,19 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 - Para cambiar locale, setear la cookie — `components/LanguageSelector.tsx` lo maneja.
 - `lib/i18n.ts` carga diccionarios de `data/dictionaries/{locale}.json`.
 - Diccionarios estáticos en `data/dictionaries/` — `en.json`, `es.json`, `fr.json`.
+- El panel `/admin/*` también consume el sistema i18n a través de la sección
+  `dashboard` del `Dictionary` (ver `types/i18n.ts` → `DashboardDict`). Los
+  server components `app/admin/layout.tsx`, `app/admin/properties/page.tsx`,
+  `app/admin/properties/create/page.tsx`,
+  `app/admin/properties/[id]/edit/page.tsx` y `app/admin/users/page.tsx`
+  leen la cookie `NEXT_LOCALE` con el mismo patrón que `app/page.tsx` y
+  pasan la subsección correspondiente del dict a los client components
+  `components/admin/AdminNav.tsx` (vía prop `t: DashboardNavDict`) y
+  `components/admin/PropertyForm.tsx` (vía prop
+  `t: DashboardPropertyFormDict`). No se introdujo un Context React para
+  el dict del admin — el árbol `/admin/*` es chico y un prop-drilling
+  directo es consistente con el patrón usado en `Hero` /
+  `FeaturedCollection` / `NewInMarket` del home.
 
 #### Storage — Cloudinary
 
