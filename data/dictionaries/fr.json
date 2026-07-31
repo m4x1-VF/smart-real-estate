@@ -40,7 +40,9 @@
     "baths": "Bains",
     "sqm": "m²",
     "saved_title": "Propriétés Sauvegardées",
-    "saved_empty": "Vous n'avez pas encore sauvegardé de propriétés."
+    "saved_empty": "Vous n'avez pas encore sauvegardé de propriétés.",
+    "all_properties": "Toutes les Propriétés",
+    "all_properties_subtitle": "Parcourez notre catalogue complet de propriétés."
   },
   "filters": {
     "title": "Filtres",

@@ -62,7 +62,7 @@ const FeaturedCollection = async ({ dict, featuredDict }: FeaturedCollectionProp
           </p>
         </div>
         <Link
-          href="#"
+          href="/properties/featured"
           className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
         >
           {featuredDict.view_all}{' '}

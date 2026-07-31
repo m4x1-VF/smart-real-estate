@@ -14,6 +14,7 @@ export interface ListPropertiesFilters {
   type?: string;
   beds?: number;
   baths?: number;
+  featured?: boolean;
   page: number;
   pageSize: number;
   includeInactive?: boolean;
@@ -97,6 +98,7 @@ export async function listProperties(
     type,
     beds,
     baths,
+    featured,
     page,
     pageSize,
     includeInactive = false,
@@ -118,6 +120,7 @@ export async function listProperties(
       ${normalizedType ? sql`AND strip_accents(title) ILIKE strip_accents(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
+      ${featured !== undefined ? sql`AND is_featured = ${featured}` : sql``}
     ORDER BY created_at DESC
     LIMIT ${pageSize_}
     OFFSET ${offset}
@@ -130,6 +133,7 @@ export async function listProperties(
     type,
     beds,
     baths,
+    featured,
     includeInactive,
   });
 
@@ -150,6 +154,7 @@ export async function countProperties(
     type,
     beds,
     baths,
+    featured,
     includeInactive = false,
   } = filters;
 
@@ -166,6 +171,7 @@ export async function countProperties(
       ${normalizedType ? sql`AND strip_accents(title) ILIKE strip_accents(${'%' + normalizedType + '%'})` : sql``}
       ${beds !== undefined ? sql`AND beds >= ${beds}` : sql``}
       ${baths !== undefined ? sql`AND baths >= ${baths}` : sql``}
+      ${featured !== undefined ? sql`AND is_featured = ${featured}` : sql``}
   `) as { count: number }[];
 
   return rows[0]?.count ?? 0;

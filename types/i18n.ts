@@ -51,6 +51,8 @@ export interface CommonDict {
   sqm: string;
   saved_title: string;
   saved_empty: string;
+  all_properties: string;
+  all_properties_subtitle: string;
 }
 
 export interface PropertyDetailDict {
