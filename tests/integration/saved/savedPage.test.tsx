@@ -43,6 +43,13 @@ vi.mock('@/lib/auth', () => ({
   },
 }));
 
+// Mock i18n
+vi.mock('@/lib/i18n', () => ({
+  getDictionary: () => ({
+    common: { saved_title: 'Propiedades Guardadas', saved_empty: 'Aún no has guardado propiedades.' },
+  }),
+}));
+
 // Mock server actions
 vi.mock('@/app/saved/actions', () => ({
   listFavoriteProperties: (...args: unknown[]) => listFavoritePropertiesMock(...args),
@@ -62,6 +69,13 @@ vi.mock('next/image', () => ({
 vi.mock('@/components/Navbar', () => ({
   default: function MockNavbar() {
     return <nav data-testid="navbar">Navbar</nav>;
+  },
+}));
+
+// Mock Footer
+vi.mock('@/components/Footer', () => ({
+  default: function MockFooter() {
+    return <footer data-testid="footer">Footer</footer>;
   },
 }));
 
@@ -144,7 +158,7 @@ describe('SavedPage', () => {
     render(result as React.ReactElement);
 
     expect(redirectMock).not.toHaveBeenCalled();
-    expect(screen.getByText('Saved Homes')).toBeInTheDocument();
+    expect(screen.getByText('Propiedades Guardadas')).toBeInTheDocument();
     expect(screen.getByText('Saved Property')).toBeInTheDocument();
   });
 
@@ -158,6 +172,6 @@ describe('SavedPage', () => {
     const result = await SavedPage();
     render(result as React.ReactElement);
 
-    expect(screen.getByText('No saved properties yet.')).toBeInTheDocument();
+    expect(screen.getByText('Aún no has guardado propiedades.')).toBeInTheDocument();
   });
 });

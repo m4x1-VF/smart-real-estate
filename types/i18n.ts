@@ -49,6 +49,8 @@ export interface CommonDict {
   beds: string;
   baths: string;
   sqm: string;
+  saved_title: string;
+  saved_empty: string;
 }
 
 export interface PropertyDetailDict {

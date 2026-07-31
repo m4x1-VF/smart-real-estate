@@ -38,7 +38,9 @@
     },
     "beds": "Camas",
     "baths": "Baños",
-    "sqm": "m²"
+    "sqm": "m²",
+    "saved_title": "Propiedades Guardadas",
+    "saved_empty": "Aún no has guardado propiedades."
   },
   "filters": {
     "title": "Filtros",
