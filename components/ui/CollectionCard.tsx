@@ -32,7 +32,7 @@ const CollectionCard = ({ collection, isFavorited = false, dict }: CollectionCar
         )}
 
         {/* Tag */}
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-nordic">
+        <div className="absolute top-4 left-4 bg-nordic/90 backdrop-blur-sm px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider text-white">
           {collection.tag}
         </div>
 

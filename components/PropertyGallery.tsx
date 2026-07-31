@@ -56,19 +56,21 @@ export default function PropertyGallery({
             <div
               key={idx}
               onClick={() => setActiveImage(idx)}
-              className={`flex-none w-48 aspect-4/3 relative rounded-lg overflow-hidden cursor-pointer snap-start transition-all ${
+              className={`flex-none rounded-lg transition-all ${
                 activeImage === idx
-                  ? 'ring-2 ring-mosque ring-offset-2 ring-offset-clear-day'
+                  ? 'p-1 bg-mosque'
                   : 'opacity-70 hover:opacity-100'
               }`}
             >
-              <Image
-                src={img}
-                alt={`${title} - Thumbnail ${idx + 1}`}
-                fill
-                className="object-cover"
-                sizes="192px"
-              />
+              <div className="relative w-48 aspect-4/3 rounded-lg overflow-hidden cursor-pointer snap-start">
+                <Image
+                  src={img}
+                  alt={`${title} - Thumbnail ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="192px"
+                />
+              </div>
             </div>
           ))}
         </div>
