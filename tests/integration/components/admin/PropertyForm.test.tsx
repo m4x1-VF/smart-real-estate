@@ -76,13 +76,18 @@ const MOCK_FORM_T: DashboardPropertyFormDict = {
   active: 'PF_ACTIVE',
   inactive: 'PF_INACTIVE',
   property_title: 'PF_PROP_TITLE',
+  title_placeholder: 'PF_TITLE_PH',
   price: 'PF_PRICE',
+  price_placeholder: 'PF_PRICE_PH',
   property_type: 'PF_TYPE',
   type_sale: 'PF_SALE',
   type_rent: 'PF_RENT',
   address: 'PF_ADDR',
+  address_placeholder: 'PF_ADDR_PH',
   latitude: 'PF_LAT',
+  lat_placeholder: 'PF_LAT_PH',
   longitude: 'PF_LNG',
+  lng_placeholder: 'PF_LNG_PH',
   map_location: 'PF_MAP_LOC',
   year_built: 'PF_YEAR',
   bedrooms: 'PF_BEDROOMS',
@@ -102,6 +107,7 @@ const MOCK_FORM_T: DashboardPropertyFormDict = {
   format_italic: 'PF_ITALIC',
   format_list: 'PF_LIST',
   breadcrumb_aria: 'PF_BC_ARIA',
+  description_placeholder: 'PF_DESC_PH',
   year_placeholder: 'PF_YEAR_PH',
   amenities_list: {
     'Swimming Pool': 'PF_POOL',
@@ -170,6 +176,14 @@ describe('PropertyForm (T14 → R8, R9, R10, R13, R15)', () => {
     expect(screen.getByText('PF_POOL')).toBeInTheDocument();
     expect(screen.getByText('PF_GARDEN')).toBeInTheDocument();
     expect(screen.getByText('PF_AC')).toBeInTheDocument();
+
+    // Placeholders (translated, not English hardcodes)
+    expect(screen.getByPlaceholderText('PF_TITLE_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_PRICE_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_DESC_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_ADDR_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_LAT_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_LNG_PH')).toBeInTheDocument();
 
     // Action buttons (desktop sticky bar — both Cancel labels appear)
     const cancelButtons = screen.getAllByText('PF_CANCEL');
@@ -256,5 +270,28 @@ describe('PropertyForm (T14 → R8, R9, R10, R13, R15)', () => {
     // amenities + images are JSON-stringified arrays
     expect(formData.get('amenities')).toBe('[]');
     expect(formData.get('images')).toBe('[]');
+  });
+
+  it('renders translated placeholders and NOT English hardcodes', () => {
+    render(<PropertyForm t={MOCK_FORM_T} />);
+
+    // Verify no English hardcodes remain
+    expect(screen.queryByPlaceholderText(/e\.g\./i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/Street Address/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/Describe the property/i)).not.toBeInTheDocument();
+
+    // Verify translated placeholders are present
+    expect(screen.getByPlaceholderText('PF_TITLE_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_ADDR_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_DESC_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_LAT_PH')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('PF_LNG_PH')).toBeInTheDocument();
+  });
+
+  it('price input has no required attribute so the user can clear it (R10)', () => {
+    render(<PropertyForm t={MOCK_FORM_T} />);
+    const priceInput = document.getElementById('price') as HTMLInputElement;
+    expect(priceInput).toBeTruthy();
+    expect(priceInput.hasAttribute('required')).toBe(false);
   });
 });

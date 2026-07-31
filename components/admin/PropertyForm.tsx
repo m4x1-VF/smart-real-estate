@@ -341,7 +341,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 value={formData.title}
                 onChange={handleInputChange}
                 className="w-full text-base px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sans"
-                placeholder="e.g. Modern Penthouse with Ocean View"
+                placeholder={t.title_placeholder}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -352,21 +352,15 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 >
                   {t.price} <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-sans text-sm">
-                    $
-                  </span>
-                  <input
-                    id="price"
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    className="w-full pl-7 pr-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-medium font-sans"
-                    placeholder="0.00"
-                  />
-                </div>
+                <input
+                  id="price"
+                  type="number"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full text-left px-3 py-2 rounded border-gray-200 bg-gray-50 text-nordic focus:bg-white focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sans text-sm"
+                  placeholder={t.price_placeholder}
+                />
               </div>
 
               <div>
@@ -428,7 +422,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
               value={formData.description ?? ''}
               onChange={handleInputChange}
               className="w-full px-4 py-3 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sans leading-relaxed resize-y min-h-[200px]"
-              placeholder="Describe the property features, neighborhood, and unique selling points..."
+              placeholder={t.description_placeholder}
             />
             <div className="mt-2 text-right text-xs text-gray-400 font-sans">
               {t.character_counter.replace('{count}', String((formData.description || '').length))}
@@ -544,7 +538,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 value={formData.location}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sans"
-                placeholder="Street Address, City, Zip"
+                placeholder={t.address_placeholder}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -562,7 +556,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                   value={formData.lat ?? ''}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sans"
-                  placeholder="e.g. 40.7128"
+                  placeholder={t.lat_placeholder}
                 />
               </div>
               <div>
@@ -579,7 +573,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                   value={formData.lng ?? ''}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 rounded-md border-gray-200 bg-white text-nordic placeholder-gray-400 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sans"
-                  placeholder="e.g. -74.0060"
+                  placeholder={t.lng_placeholder}
                 />
               </div>
             </div>

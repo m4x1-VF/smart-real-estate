@@ -169,13 +169,18 @@ export interface DashboardPropertyFormDict {
   active: string;
   inactive: string;
   property_title: string;
+  title_placeholder: string; // "e.g. Modern Penthouse with Ocean View"
   price: string;
+  price_placeholder: string; // "0" / "0" / "0"
   property_type: string;
   type_sale: string; // label visible del <option value="sale">
   type_rent: string; // label visible del <option value="rent">
   address: string;
+  address_placeholder: string; // "Street Address, City, Zip"
   latitude: string;
+  lat_placeholder: string; // "e.g. 40.7128"
   longitude: string;
+  lng_placeholder: string; // "e.g. -74.0060"
   map_location: string;
   year_built: string;
   bedrooms: string;
@@ -196,6 +201,7 @@ export interface DashboardPropertyFormDict {
   format_italic: string;
   format_list: string;
   breadcrumb_aria: string;
+  description_placeholder: string; // "Describe the property features..."
   year_placeholder: string; // "YYYY" / "AAAA" / "AAAA"
   errors: {
     invalid_file_type: string; // placeholders: {name}
