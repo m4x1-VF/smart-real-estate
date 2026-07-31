@@ -60,15 +60,29 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
     const { id, value, type } = e.target as HTMLInputElement;
 
     const optionalFields: Array<keyof Property> = ['lat', 'lng'];
+    const numericFields = ['price', 'lat', 'lng', 'sqft', 'year_built'];
     let parsedValue: string | number | boolean | undefined = value;
 
-    if (type === 'number') {
-      parsedValue =
-        value === ''
-          ? optionalFields.includes(id as keyof Property)
-            ? undefined
-            : 0
-          : Number(value);
+    if (type === 'number' || numericFields.includes(id)) {
+      // Allow empty value for optional fields
+      if (value === '') {
+        parsedValue = optionalFields.includes(id as keyof Property)
+          ? undefined
+          : 0;
+      } else {
+        // Validate: allow digits, optional decimal point for lat/lng, optional minus for coordinates
+        const isValid =
+          id === 'lat' || id === 'lng'
+            ? /^-?\d*\.?\d*$/.test(value)
+            : /^\d*\.?\d*$/.test(value);
+
+        if (isValid) {
+          parsedValue = Number(value);
+        } else {
+          // Invalid input: keep previous value
+          parsedValue = formData[id as keyof Property];
+        }
+      }
     } else if (type === 'checkbox') {
       parsedValue = (e.target as HTMLInputElement).checked;
     }
@@ -354,7 +368,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 </label>
                 <input
                   id="price"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   min="0"
                   value={formData.price}
                   onChange={handleInputChange}
@@ -551,7 +566,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 </label>
                 <input
                   id="lat"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   step="any"
                   value={formData.lat ?? ''}
                   onChange={handleInputChange}
@@ -568,7 +584,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 </label>
                 <input
                   id="lng"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   step="any"
                   value={formData.lng ?? ''}
                   onChange={handleInputChange}
@@ -625,7 +642,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 </label>
                 <input
                   id="sqft"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   min="0"
                   value={formData.sqft}
                   onChange={handleInputChange}
@@ -642,7 +660,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                 </label>
                 <input
                   id="year_built"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={formData.year_built ?? ''}
                   onChange={handleInputChange}
                   className="w-full text-left px-3 py-2 rounded border-gray-200 bg-gray-50 text-nordic focus:bg-white focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sans text-sm"
