@@ -301,6 +301,251 @@
       "open_questions": [],
       "sdd": true,
       "status": "done"
+    },
+    {
+      "id": 9,
+      "name": "security-dependency-updates",
+      "title": "Actualizar Next.js a 16.2.12 y fixear vulnerabilidades de dependencias",
+      "description": "Actualizar Next.js de 16.1.6 a 16.2.12 para resolver ~25 CVEs conocidos (middleware bypass, CSRF bypass, DoS, SSRF, XSS). Ejecutar npm audit fix para dependencias transitivas vulnerables (brace-expansion, flatted, js-yaml, minimatch, picomatch, postcss, sharp, ws). Verificar que build y tests siguen verdes tras la actualización.",
+      "scope": "Solo package.json y lock files. NO toca código de aplicación, NO toca configuración.",
+      "acceptance": [
+        "next actualizado a 16.2.12 en package.json",
+        "npm audit reporta 0 vulnerabilidades críticas y 0 altas",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "No hay regresiones en funcionalidad existente (auth, admin, favorites)"
+      ],
+      "out_of_scope": [
+        "Cambios en código de aplicación",
+        "Cambios en configuración de Next.js",
+        "Migración de APIs deprecadas (si las hubiera, van en otra feature)"
+      ],
+      "decisions": [
+        "Upgrade directo a 16.2.12 (fix version recomendado por npm audit)",
+        "Sin SDD: es un upgrade de dependencia, no lógica nueva"
+      ],
+      "sdd": false,
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "name": "security-headers",
+      "title": "Configurar headers de seguridad HTTP (CSP, HSTS, X-Frame-Options)",
+      "description": "Agregar headers de seguridad HTTP a next.config.ts: Content-Security-Policy (con estrategia de nonces compatible con Next.js 16), Strict-Transport-Security (HSTS), X-Frame-Options, X-Content-Type-Options, Referrer-Policy y Permissions-Policy. Agregar Cache-Control: no-store, private a rutas /admin/* para prevenir cacheo de datos sensibles. Resolver hallazgos H-01 y M-03 de la auditoría.",
+      "scope": "next.config.ts (headers function), posiblemente middleware.ts para Cache-Control en admin. NO toca código de aplicación.",
+      "acceptance": [
+        "Headers de seguridad aplicados a todas las rutas vía next.config.ts headers()",
+        "CSP configurado con nonces compatibles con Next.js 16",
+        "HSTS con max-age >= 63072000, includeSubDomains",
+        "X-Frame-Options: DENY",
+        "X-Content-Type-Options: nosniff",
+        "Referrer-Policy: strict-origin-when-cross-origin",
+        "Permissions-Policy: camera=(), microphone=(), geolocation=()",
+        "Rutas /admin/* tienen Cache-Control: no-store, private",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Verificación manual con curl -I muestra todos los headers presentes"
+      ],
+      "out_of_scope": [
+        "Implementación de CSP reporting endpoint",
+        "Configuración de CORS (no aplica, misma origin)",
+        "Headers personalizados por ruta (solo admin tiene Cache-Control especial)"
+      ],
+      "decisions": [
+        "CSP con nonces (no unsafe-inline) para máxima seguridad",
+        "HSTS con preload flag para futura inclusión en lista de preload"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 11,
+      "name": "auth-hardening",
+      "title": "Hardening de autenticación: rate limiting, password policy y email verification",
+      "description": "Fortalecer la capa de autenticación con: (1) Rate limiting en /api/auth/* y server actions sensibles usando Upstash KV o equivalente, (2) Política de contraseñas robusta: min 8 chars + uppercase + lowercase + digit + special char, (3) Activar requireEmailVerification en better-auth, (4) Considerar Cloudflare Turnstile/reCAPTCHA en login/signup, (5) Session management: TTL corto + refresh token rotation. Resolver hallazgos H-03, H-04 y M-01.",
+      "scope": "lib/auth/index.ts (config), lib/auth/schemas.ts (password schema), lib/auth/profile-schemas.ts, app/api/auth/[...all]/route.ts (rate limiting), app/login/page.tsx, app/signup/page.tsx (captcha). Middleware para rate limiting.",
+      "acceptance": [
+        "Rate limiting implementado: max 5 intentos de login por minuto por IP",
+        "Rate limiting en signup: max 3 registros por hora por IP",
+        "Password schema requiere: min 8 + 1 uppercase + 1 lowercase + 1 digit + 1 special char",
+        "requireEmailVerification: true en better-auth config",
+        "Cloudflare Turnstile o reCAPTCHA integrado en /login y /signup",
+        "Session TTL configurado (recomendado: 15min access + 7d refresh)",
+        "Refresh token rotation activada",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Tests de rate limiting verifican bloqueo tras N intentos"
+      ],
+      "out_of_scope": [
+        "Implementación del servicio de email (usar el que better-auth provee)",
+        "MFA/2FA (feature separada)",
+        "Account lockout permanente (solo rate limiting temporal)"
+      ],
+      "decisions": [
+        "Upstash KV para rate limiting (serverless-friendly, Redis-compatible)",
+        "Cloudflare Turnstile preferido sobre reCAPTCHA (mejor UX, privacy-friendly)",
+        "Password complexity vía Zod regex (no librería externa)"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 12,
+      "name": "cookie-and-csrf-fixes",
+      "title": "Fixear flags de cookie de locale y reducir body size limit de server actions",
+      "description": "Dos fixes puntuales: (1) Mover la cookie NEXT_LOCALE de client-side (document.cookie) a server-side (middleware), seteando flags Secure, SameSite=Lax, Path=/. (2) Reducir serverActions.bodySizeLimit de 10mb a 2mb en next.config.ts. Resolver hallazgos H-02 y M-06.",
+      "scope": "components/LanguageSelector.tsx (remover document.cookie), middleware.ts (setear cookie server-side), next.config.ts (bodySizeLimit).",
+      "acceptance": [
+        "LanguageSelector ya no usa document.cookie directamente",
+        "Cookie NEXT_LOCALE se setea via middleware con Secure; SameSite=Lax; Path=/",
+        "serverActions.bodySizeLimit cambiado de '10mb' a '2mb'",
+        "Cambio de idioma sigue funcionando correctamente",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%"
+      ],
+      "out_of_scope": [
+        "Migración de otras cookies (session cookies las maneja better-auth)",
+        "Cambios en la lógica de i18n"
+      ],
+      "decisions": [
+        "Cookie set via middleware (server-side) en vez de client-side",
+        "2mb suficiente para avatares optimizados + property form data"
+      ],
+      "sdd": false,
+      "status": "pending"
+    },
+    {
+      "id": 13,
+      "name": "admin-auth-refactor",
+      "title": "Refactor de autorización admin: queries eficientes y verificación por página",
+      "description": "Refactorizar la verificación de rol admin: (1) Reemplazar query 'SELECT ALL admin emails' por query dirigida 'SELECT 1 WHERE user_id = $1 AND role = admin LIMIT 1', (2) Crear helper isAdmin(userId) con cache en sesión/JWT claims, (3) Agregar verificación de rol a nivel de página en todas las admin pages (defense in depth), (4) Agregar Cache-Control: no-store, private a rutas admin. Resolver hallazgos H-05, M-02 y M-03.",
+      "scope": "lib/db/admin.ts (nuevo helper), app/admin/users/actions.ts, app/admin/properties/actions.ts, app/admin/users/page.tsx, app/admin/properties/page.tsx.",
+      "acceptance": [
+        "Helper isAdmin(userId) creado en lib/db/admin.ts",
+        "Query usa SELECT 1 ... LIMIT 1 en vez de SELECT ALL",
+        "isAdmin cacheado en sesión (no query DB en cada request)",
+        "Todas las admin pages verifican rol antes de renderizar datos",
+        "Cache-Control: no-store, private en respuestas de admin pages",
+        "Server actions admin usan isAdmin() en vez de getAdminUsers()",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Tests verifican que non-admin recibe 403 en cada admin page"
+      ],
+      "out_of_scope": [
+        "Migración de admin checks a middleware (se mantiene en server actions/pages)",
+        "UI de gestión de roles admin"
+      ],
+      "decisions": [
+        "isAdmin como helper con cache en sesión (no middleware global)",
+        "Cache-Control via headers() en cada page component"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "name": "property-validation",
+      "title": "Agregar validación Zod al server action saveProperty",
+      "description": "Crear un schema Zod (propertySchema) para validar el input de saveProperty: title (string, max 200), description (string, max 5000), price (number, min 0), coordinates (lat/lng en rangos válidos), type (enum sale/rent), location, amenities (array de strings permitidos). Validar el output de buildPayload() contra el schema antes de insertar/actualizar en DB. Resolver hallazgo M-04.",
+      "scope": "Nuevo archivo lib/properties/schemas.ts (propertySchema), app/admin/properties/actions.ts (validar buildPayload output).",
+      "acceptance": [
+        "propertySchema creado con Zod en lib/properties/schemas.ts",
+        "Schema valida: title (max 200), description (max 5000), price (>= 0), type (sale|rent), coordinates (lat -90..90, lng -180..180), amenities (enum values)",
+        "saveProperty valida buildPayload() output contra propertySchema antes de DB",
+        "Errores de validación retornan mensaje claro al usuario (no crash)",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Tests verifican rechazo de: precio negativo, título > 200 chars, coordenadas inválidas, type inválido"
+      ],
+      "out_of_scope": [
+        "Validación client-side (PropertyForm ya tiene validación básica)",
+        "Validación de imágenes (eso lo hace Cloudinary)"
+      ],
+      "decisions": [
+        "Schema en lib/properties/schemas.ts (consistente con lib/auth/schemas.ts)",
+        "Validación en server action, no en buildPayload()"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 15,
+      "name": "favorites-auth-fix",
+      "title": "Fixear autorización en server actions de favoritos",
+      "description": "Remover el parámetro userId de getFavoritePropertyIds y listFavoriteProperties. Derivar userId de la sesión autenticada dentro de cada action (como ya hace toggleFavorite). Previene que un usuario autenticado pueda consultar los favoritos de otro usuario. Resolver hallazgo L-02.",
+      "scope": "app/saved/actions.ts (getFavoritePropertyIds, listFavoriteProperties), componentes que llaman estas actions.",
+      "acceptance": [
+        "getFavoritePropertyIds ya no acepta userId como parámetro",
+        "listFavoriteProperties ya no acepta userId como parámetro",
+        "Ambas actions derivan userId de la sesión (getSession o equivalente)",
+        "Todos los call sites actualizados (dejan de pasar userId)",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Test verifica que usuario A no puede ver favoritos de usuario B"
+      ],
+      "out_of_scope": [
+        "Cambios en toggleFavorite (ya usa sesión correctamente)",
+        "UI de favoritos"
+      ],
+      "decisions": [
+        "Derivar userId de sesión, no de parámetro (patrón ya usado en toggleFavorite)"
+      ],
+      "sdd": false,
+      "status": "pending"
+    },
+    {
+      "id": 16,
+      "name": "structured-logging",
+      "title": "Implementar logging estructurado reemplazando console.error",
+      "description": "Reemplazar todos los console.error en server actions y componentes con un logger estructurado (Pino o Winston). En producción: loguear solo error IDs + metadata mínima, no stack traces completos. En desarrollo: mantener logs detallados. Gate client-side console.error detrás de NODE_ENV === 'development'. Resolver hallazgo L-01.",
+      "scope": "Nuevo archivo lib/logger.ts, app/admin/properties/actions.ts, app/profile/actions.ts, components/admin/PropertyForm.tsx, cualquier otro archivo con console.error.",
+      "acceptance": [
+        "Logger estructurado creado en lib/logger.ts (Pino o Winston)",
+        "Todos los console.error en server actions reemplazados por logger.error()",
+        "En producción: logs contienen error ID + message, no stack traces",
+        "En desarrollo: logs mantienen stack traces y metadata completa",
+        "Client-side console.error solo activo si NODE_ENV === 'development'",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Logs de producción incluyen request ID para tracing"
+      ],
+      "out_of_scope": [
+        "Integración con servicio externo de logging (Datadog, Sentry, etc.)",
+        "Log rotation (lo maneja el runtime: Vercel, Docker, etc.)"
+      ],
+      "decisions": [
+        "Pino preferido sobre Winston (más rápido, JSON nativo, serverless-friendly)",
+        "Error IDs tipo UUID para correlación en logs distribuidos"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 17,
+      "name": "file-upload-hardening",
+      "title": "Hardening de upload de archivos: validación de magic bytes y documentación XSS",
+      "description": "Agregar validación de magic bytes server-side para archivos subidos a Cloudinary: verificar que JPEG empieza con FF D8 FF, PNG con 89 50 4E 47, etc. Considerar re-encoding server-side antes de upload. Documentar que property.description NO debe renderizarse con dangerouslySetInnerHTML sin sanitización previa. Resolver hallazgos M-07 y M-05.",
+      "scope": "lib/cloudinary.ts (magic bytes validation), app/properties/[slug]/page.tsx (comentario de seguridad), posiblemente nuevo helper lib/utils/file-validation.ts.",
+      "acceptance": [
+        "Helper validateImageMagicBytes() creado que verifica magic bytes de JPEG/PNG/WebP",
+        "Cloudinary upload valida magic bytes antes de enviar a Cloudinary",
+        "Upload rechaza archivos con magic bytes incorrectos (error claro al usuario)",
+        "Comentario de seguridad en app/properties/[slug]/page.tsx documentando que description NO debe usar dangerouslySetInnerHTML sin DOMPurify",
+        "pnpm build completa sin errores",
+        "pnpm test:run pasa al 100%",
+        "Tests verifican rechazo de archivos con magic bytes inválidos"
+      ],
+      "out_of_scope": [
+        "Re-encoding server-side de imágenes (opcional, alto costo computacional)",
+        "Validación de contenido de imagen (deep inspection, polyglot detection)",
+        "Sanitización de description (React ya escapa, solo documentar)"
+      ],
+      "decisions": [
+        "Magic bytes validation server-side (no client-side, fácilmente bypasseable)",
+        "No re-encoding por defecto (Cloudinary ya transforma, agregar solo si hay incidentes)"
+      ],
+      "sdd": true,
+      "status": "pending"
     }
   ]
 }
