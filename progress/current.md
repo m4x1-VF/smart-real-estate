@@ -1,7 +1,7 @@
 # Sesión actual
 
 > Este archivo se vacía al cerrar cada sesión y se mueve a `history.md`.
-> Mientras trabajás, **mantenlo actualizado en tiempo real**, no al final.
+> Mientras trabajás, **mantenelo actualizado en tiempo real**, no al final.
 
 - **Feature en curso:** —
 - **Inicio:** —

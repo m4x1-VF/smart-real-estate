@@ -487,3 +487,37 @@ El spec R3 cubría strings hardcodeados pero no valores que vienen de la DB. Los
 ### Lección
 Cuando un render muestra un valor de DB que tiene semántica user-facing (enum, status, label), SIEMPRE mapearlo via dict — no renderizarlo crudo. El grep de "no hardcoded English strings" no cubre este caso; hace falta una regla explícita: "ningún valor de enum persistido se renderiza directo, siempre via map() o ternario con dict".
 
+---
+
+## Sesión 2026-07-31 — Bugfixes post-`admin-i18n`: PropertyForm
+
+**Estado:** 3 commits, 134/134 tests verde, push a `main`.
+
+### Fixes aplicados
+1. **Placeholders en inglés** (6 keys nuevas en `dashboard.property_form`):
+   - `title_placeholder`, `description_placeholder`, `address_placeholder`, `lat_placeholder`, `lng_placeholder`, `price_placeholder`
+   - Traducidos en es/en/fr (e.g. "Ej. Penthouse moderno..." / "e.g. Modern Penthouse...")
+
+2. **Input de precio simplificado**:
+   - Removido wrapper `<div>` con `$` decorativo
+   - Removido `required` (ahora clearable, default 0)
+   - Mismo estilo que input de Área
+
+3. **Inputs numéricos → text con validación**:
+   - `price`, `lat`, `lng`, `sqft`, `year_built` cambiados de `type="number"` a `type="text"` con `inputMode`
+   - `handleInputChange` actualizado para detectar campos numéricos por ID
+   - Regex de validación: dígitos + punto decimal (lat/lng), dígitos solo (resto)
+   - Input inválido se rechaza y mantiene valor anterior (no NaN)
+
+### Commits
+- `0a06b0a` fix(admin): translate PropertyForm placeholders and simplify price input
+- `2497a5b` fix(admin): change numeric inputs to text inputs for better writing experience
+- `2497a5b` fix(admin): validate numeric inputs to reject non-numeric characters
+
+### Archivos modificados
+- `types/i18n.ts` — 6 keys nuevas en `DashboardPropertyFormDict`
+- `data/dictionaries/{es,en,fr}.json` — placeholders traducidos
+- `components/admin/PropertyForm.tsx` — placeholders, price input, numeric→text + validación
+- `tests/integration/components/admin/PropertyForm.test.tsx` — mock + 2 tests de regresión
+
+
