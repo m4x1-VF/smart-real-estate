@@ -222,6 +222,7 @@
       "format_italic": "Cursiva",
       "format_list": "Lista",
       "breadcrumb_aria": "Ruta de navegación",
+      "description_placeholder": "Describe las características de la propiedad...",
       "year_placeholder": "AAAA",
       "errors": {
         "invalid_file_type": "Tipo de archivo no válido \"{name}\". Aceptados: JPEG, PNG, WEBP, GIF.",

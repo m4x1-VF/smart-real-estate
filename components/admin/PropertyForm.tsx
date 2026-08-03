@@ -80,7 +80,8 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
           parsedValue = Number(value);
         } else {
           // Invalid input: keep previous value
-          parsedValue = formData[id as keyof Property];
+          const prev = formData[id as keyof Property];
+          parsedValue = (typeof prev === 'number' ? prev : undefined);
         }
       }
     } else if (type === 'checkbox') {

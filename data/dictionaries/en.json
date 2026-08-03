@@ -222,6 +222,7 @@
       "format_italic": "Italic",
       "format_list": "List",
       "breadcrumb_aria": "Breadcrumb",
+      "description_placeholder": "Describe the property features...",
       "year_placeholder": "YYYY",
       "errors": {
         "invalid_file_type": "Invalid file type \"{name}\". Accepted: JPEG, PNG, WEBP, GIF.",

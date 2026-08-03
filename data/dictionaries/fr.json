@@ -222,6 +222,7 @@
       "format_italic": "Italique",
       "format_list": "Liste",
       "breadcrumb_aria": "Fil d'Ariane",
+      "description_placeholder": "Décrivez les caractéristiques de la propriété...",
       "year_placeholder": "AAAA",
       "errors": {
         "invalid_file_type": "Type de fichier non valide \"{name}\". Acceptés : JPEG, PNG, WEBP, GIF.",

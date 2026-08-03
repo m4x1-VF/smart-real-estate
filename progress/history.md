@@ -520,4 +520,23 @@ Cuando un render muestra un valor de DB que tiene semántica user-facing (enum, 
 - `components/admin/PropertyForm.tsx` — placeholders, price input, numeric→text + validación
 - `tests/integration/components/admin/PropertyForm.test.tsx` — mock + 2 tests de regresión
 
+---
+
+## Sesión 2026-08-03 — Feature #10 security-headers ✅ DONE
+
+**Objetivo:** Configurar headers de seguridad HTTP (CSP, HSTS, X-Frame-Options, etc.) para resolver hallazgos H-01 y M-03 de la auditoría.
+
+**Archivos modificados:**
+- `next.config.ts` — `headers()` con 5 headers estáticos + Cache-Control para `/admin/:path*`
+- `middleware.ts` — CSP nonce por request (Web Crypto API, Edge Runtime compatible)
+- `tests/security-headers.test.ts` — 5 tests que cubren R1–R8
+
+**Desviación del design:** Spec usaba `crypto.randomBytes` (Node.js), implementer cambió a `crypto.getRandomValues` (Web Crypto API) para evitar warnings de Edge Runtime. Reviser aprobó la desviación como mejora.
+
+**Verificación:** Build OK, 139/139 tests pass, reviewer APPROVED.
+
+**Specs:** `specs/security-headers/{requirements,design,tasks}.md`
+**Reportes:** `progress/impl_security-headers.md`, `progress/review_security-headers.md`
+
+
 

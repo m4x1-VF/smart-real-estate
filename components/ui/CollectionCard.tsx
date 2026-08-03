@@ -14,7 +14,7 @@ const CollectionCard = ({ collection, isFavorited = false, dict }: CollectionCar
   return (
     <Link
       href={`/properties/${collection.slug || collection.id}`}
-      className="block group relative rounded-xl overflow-hidden shadow-soft bg-white cursor-pointer"
+      className="block group relative rounded-xl overflow-hidden shadow-soft bg-white cursor-pointer h-full flex flex-col"
     >
       {/* Image Container */}
       <div className="aspect-4/3 w-full overflow-hidden relative bg-gray-100">
@@ -49,43 +49,42 @@ const CollectionCard = ({ collection, isFavorited = false, dict }: CollectionCar
       </div>
 
       {/* Content */}
-      <div className="p-6 relative">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h3 className="text-xl font-medium text-nordic group-hover:text-mosque transition-colors">
-              {collection.title}
-            </h3>
-            <p className="text-nordic-muted text-sm flex items-center gap-1 mt-1">
-              <span className="material-icons text-sm font-material-icons">
-                place
-              </span>{' '}
-              {collection.location}
-            </p>
-          </div>
-          <span className="text-xl font-semibold text-mosque">
+      <div className="p-6 relative flex flex-col grow">
+        <div className="flex justify-between items-baseline mb-2">
+          <h3 className="font-bold text-lg text-nordic">
             €{collection.price.toLocaleString()}
-          </span>
+          </h3>
         </div>
 
+        <h4 className="text-nordic font-medium truncate mb-1">
+          {collection.title}
+        </h4>
+        <p className="text-nordic-muted text-sm flex items-center gap-1 mb-4">
+          <span className="material-icons text-sm font-material-icons">
+            place
+          </span>{' '}
+          {collection.location}
+        </p>
+
         {/* Features */}
-        <div className="flex items-center gap-6 mt-6 pt-6 border-t border-nordic/5">
-          <div className="flex items-center gap-2 text-nordic-muted text-sm">
-            <span className="material-icons text-lg font-material-icons">
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-nordic/5">
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80 font-material-icons">
               king_bed
             </span>{' '}
             {collection.beds} {dict?.beds_label || 'Beds'}
           </div>
-          <div className="flex items-center gap-2 text-nordic-muted text-sm">
-            <span className="material-icons text-lg font-material-icons">
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80 font-material-icons">
               bathtub
             </span>{' '}
             {collection.baths} {dict?.baths_label || 'Baths'}
           </div>
-          <div className="flex items-center gap-2 text-nordic-muted text-sm">
-            <span className="material-icons text-lg font-material-icons">
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80 font-material-icons">
               square_foot
             </span>{' '}
-            {collection.sqft.toLocaleString()} m²
+            {collection.sqft.toLocaleString()} {dict?.sqm || 'm²'}
           </div>
         </div>
       </div>

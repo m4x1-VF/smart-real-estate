@@ -325,7 +325,7 @@
         "Sin SDD: es un upgrade de dependencia, no lógica nueva"
       ],
       "sdd": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": 10,
@@ -356,7 +356,7 @@
         "HSTS con preload flag para futura inclusión en lista de preload"
       ],
       "sdd": true,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": 11,
