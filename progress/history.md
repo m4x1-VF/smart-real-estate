@@ -538,5 +538,35 @@ Cuando un render muestra un valor de DB que tiene semántica user-facing (enum, 
 **Specs:** `specs/security-headers/{requirements,design,tasks}.md`
 **Reportes:** `progress/impl_security-headers.md`, `progress/review_security-headers.md`
 
+---
+
+## Sesión 2026-08-03 — Feature #11 auth-hardening ✅ DONE
+
+**Objetivo:** Fortalecer la capa de autenticación: rate limiting, password policy, email verification, CAPTCHA, session management.
+
+**Archivos creados:**
+- `lib/rate-limit.ts` — loginRateLimit (5/min) y signupRateLimit (3/h) con Upstash Redis
+- `lib/turnstile.ts` — verifyTurnstileToken() para Cloudflare Turnstile
+- `tests/unit/auth/rate-limit.test.ts` — 6 tests
+- `tests/unit/auth/password-policy.test.ts` — 12 tests
+- `tests/unit/auth/turnstile.test.ts` — 5 tests
+- `tests/unit/auth/session-config.test.ts` — 5 tests
+
+**Archivos modificados:**
+- `middleware.ts` — rate limiting + Turnstile verification + CSP actualizado
+- `lib/auth/index.ts` — session config (7d/15min/5min) + email verification
+- `lib/auth/schemas.ts` — passwordComplexity regex
+- `lib/auth/profile-schemas.ts` — passwordComplexity en changePassword
+- `app/login/page.tsx` — widget Turnstile
+- `app/signup/page.tsx` — widget Turnstile
+
+**Desviaciones:** Ninguna. Implementación fiel al spec.
+
+**Verificación:** Build OK, reviewer APPROVED, 28 tests nuevos verdes.
+
+**Specs:** `specs/auth-hardening/{requirements,design,tasks}.md`
+**Reportes:** `progress/impl_auth-hardening.md`, `progress/review_auth-hardening.md`
+
+
 
 

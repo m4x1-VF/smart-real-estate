@@ -195,8 +195,8 @@ describe('Profile server actions', () => {
       const { changePassword } = await getActions();
       const formData = new FormData();
       formData.set('currentPassword', 'oldPassword123');
-      formData.set('newPassword', 'newPassword456');
-      formData.set('confirmPassword', 'newPassword456');
+      formData.set('newPassword', 'NewPassword456!');
+      formData.set('confirmPassword', 'NewPassword456!');
 
       const result = await changePassword(formData);
 
@@ -205,7 +205,7 @@ describe('Profile server actions', () => {
         expect.objectContaining({
           body: expect.objectContaining({
             currentPassword: 'oldPassword123',
-            newPassword: 'newPassword456',
+            newPassword: 'NewPassword456!',
             revokeOtherSessions: false,
           }),
         }),
@@ -221,8 +221,8 @@ describe('Profile server actions', () => {
       const { changePassword } = await getActions();
       const formData = new FormData();
       formData.set('currentPassword', 'wrongPassword');
-      formData.set('newPassword', 'newPassword456');
-      formData.set('confirmPassword', 'newPassword456');
+      formData.set('newPassword', 'NewPassword456!');
+      formData.set('confirmPassword', 'NewPassword456!');
 
       await expect(changePassword(formData)).rejects.toThrow(
         'Current password is incorrect',
@@ -248,8 +248,8 @@ describe('Profile server actions', () => {
       const { changePassword } = await getActions();
       const formData = new FormData();
       formData.set('currentPassword', 'oldPassword123');
-      formData.set('newPassword', 'newPassword456');
-      formData.set('confirmPassword', 'differentPassword');
+      formData.set('newPassword', 'NewPassword456!');
+      formData.set('confirmPassword', 'DifferentPassword1!');
 
       await expect(changePassword(formData)).rejects.toThrow();
       expect(changePasswordMock).not.toHaveBeenCalled();

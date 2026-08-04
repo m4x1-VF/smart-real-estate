@@ -3,9 +3,12 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 import { authClient } from '@/lib/auth/client';
 import { signupSchema } from '@/lib/auth/schemas';
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +18,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -26,6 +30,11 @@ export default function SignupPage() {
       return;
     }
 
+    if (!turnstileToken) {
+      setError('Please complete the security verification.');
+      return;
+    }
+
     setIsLoading(true);
 
     const { error } = await authClient.signUp.email({
@@ -33,6 +42,11 @@ export default function SignupPage() {
       email,
       password,
       callbackURL: '/',
+      fetchOptions: {
+        headers: {
+          'x-turnstile-token': turnstileToken,
+        },
+      },
     });
 
     if (error) {
@@ -114,6 +128,13 @@ export default function SignupPage() {
               className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#006655]/20 focus:border-[#006655]"
               required
             />
+            {TURNSTILE_SITE_KEY && (
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                onSuccess={setTurnstileToken}
+                onError={() => setTurnstileToken(null)}
+              />
+            )}
             <button
               type="submit"
               disabled={isLoading}

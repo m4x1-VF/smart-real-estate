@@ -387,7 +387,7 @@
         "Password complexity vía Zod regex (no librería externa)"
       ],
       "sdd": true,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": 12,

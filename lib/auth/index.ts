@@ -13,7 +13,24 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendOnSignIn: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      // In development, log the verification URL. In production, integrate with an email service.
+      console.log(
+        `[Email Verification] To: ${user.email}, URL: ${url}`
+      );
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days (604800 seconds)
+    updateAge: 60 * 15, // 15 minutes (900 seconds) — sliding window refresh
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes (300 seconds) — reduces DB calls
+    },
   },
   socialProviders: buildSocialProviders(),
   trustedOrigins: [

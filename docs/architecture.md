@@ -254,6 +254,11 @@ Implementaciones concretas de puertos. Traducen entre el mundo externo y el domi
 - **Variables de entorno**: `BETTER_AUTH_SECRET` (firma de cookies), `DATABASE_URL` (Neon), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` (OAuth social).
 - **Social providers**: Google y GitHub configurados vía `buildSocialProviders()` en `lib/auth/social-providers.ts`. La función lee env vars y retorna el objeto `socialProviders` para `betterAuth()`.
 - **Validación de formularios**: Schemas Zod en `lib/auth/schemas.ts` (`loginSchema`, `signupSchema`). Tipos inferidos: `LoginInput`, `SignupInput`. Usados en `/login` y `/signup` para validación client-side antes de llamar a `authClient`.
+- **Política de contraseñas**: `signupSchema.password` y `changePasswordSchema.newPassword` aplican la constante `passwordComplexity` (exportada desde `lib/auth/schemas.ts`): min 8 chars, 1 mayúscula, 1 minúscula, 1 dígito, 1 carácter especial. `loginSchema.password` se mantiene simple (`min(1)`) — la complejidad la impone el servidor en registro/cambio.
+- **Verificación de email**: `requireEmailVerification: true` en `emailAndPassword`. El callback `sendVerificationEmail` loguea la URL de verificación en desarrollo. `sendOnSignIn: true` reenvía el email si el usuario intenta loguear sin haber verificado.
+- **Session management**: `session.expiresIn = 604800` (7 días), `session.updateAge = 900` (15 min, sliding window), `session.cookieCache.enabled = true` con `maxAge = 300` (5 min, reduce DB calls).
+- **Cloudflare Turnstile**: Widget en `/login` y `/signup` (`@marsidev/react-turnstile`). Token enviado como header `x-turnstile-token` via `fetchOptions.headers` en `authClient.signIn.email()` / `authClient.signUp.email()`. Verificación server-side en middleware vía `lib/turnstile.ts` (`verifyTurnstileToken`). CSP incluye `https://challenges.cloudflare.com` en `script-src` y `frame-src`.
+- **Rate limiting**: Upstash Redis (`@upstash/ratelimit` + `@upstash/redis`) en `lib/rate-limit.ts`. `loginRateLimit`: 5 req/min/IP (sliding window). `signupRateLimit`: 3 req/hour/IP. Se aplica en `middleware.ts` para POST `/api/auth/sign-in/*` y `/api/auth/sign-up/*`. Fail-open si Redis no está disponible (no bloquea usuarios por caída de infraestructura).
 - Server-side: `import { auth } from '@/lib/auth'` → `auth.api.getSession({ headers })` para obtener sesión completa con DB check.
 - Client-side: `import { authClient } from '@/lib/auth/client'` → `authClient.signIn.social()`, `authClient.signIn.emailAndPassword()`, `authClient.signUp.emailAndPassword()`, `authClient.signOut()`.
 - Route handler: `app/api/auth/[...all]/route.ts` delega a `toNextJsHandler(auth)`.
@@ -351,15 +356,18 @@ components/
 
 #### Middleware
 
-`middleware.ts` ejecuta `getSessionCookie(request)` de `better-auth/cookies` en cada request (excepto static assets):
+`middleware.ts` ejecuta en Edge Runtime y realiza las siguientes operaciones en cada request (excepto static assets):
 
-1. Verifica firma HMAC de la cookie de sesión (sin llamada a DB — Edge-compatible)
-2. Redirige `/admin/*` sin cookie → `/login`
-3. Redirige `/profile` sin cookie → `/login`
-4. Redirige `/saved` sin cookie → `/login`
-5. Redirige `/login` con cookie → `/`
-6. Redirige `/signup` con cookie → `/`
-7. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
+1. **Auth gate** (session cookie): `getSessionCookie(request)` de `better-auth/cookies` verifica firma HMAC (sin llamada a DB — Edge-compatible)
+   - Redirige `/admin/*` sin cookie → `/login`
+   - Redirige `/profile` sin cookie → `/login`
+   - Redirige `/saved` sin cookie → `/login`
+   - Redirige `/login` con cookie → `/`
+   - Redirige `/signup` con cookie → `/`
+2. **Rate limiting** (solo POST `/api/auth/sign-in/*` y `/api/auth/sign-up/*`): Upstash Redis via `lib/rate-limit.ts`. Login: 5 req/min/IP. Signup: 3 req/hour/IP. Fail-open si Redis no está disponible. Retorna HTTP 429 + JSON si se excede.
+3. **Turnstile verification** (solo POST `/api/auth/sign-in/*` y `/api/auth/sign-up/*`): Extrae token del header `x-turnstile-token`, verifica contra Cloudflare via `lib/turnstile.ts`. Retorna HTTP 403 + JSON si token ausente o inválido.
+4. **CSP** (todas las rutas): Content-Security-Policy con nonce criptográfico por request. `script-src` incluye `https://challenges.cloudflare.com` para Turnstile. `frame-src` incluye `https://challenges.cloudflare.com`.
+5. Validación completa con DB se hace en `app/admin/layout.tsx` (Node.js runtime) vía `auth.api.getSession()` + check contra `get_admin_users()`
 
 #### Estilo — Design Tokens (Tailwind v4)
 

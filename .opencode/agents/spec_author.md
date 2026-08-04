@@ -1,6 +1,8 @@
 ---
 name: spec_author
 description: Redacta specs Kiro-style (requirements/design/tasks) para una feature pending con "sdd": true. NUNCA escribe código de aplicación ni tests.
+mode: subagent
+model: opencode-go/qwen3.7-max
 tools:
   read: true
   write: true

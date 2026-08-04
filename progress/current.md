@@ -1,17 +1,17 @@
 # Sesión actual
 
-- **Feature en curso:** Ninguna (feature #10 completada)
+- **Feature en curso:** Ninguna (feature #11 completada)
 - **Última sesión:** 2026-08-03
 
 ## Bitácora
 
-### Sesión actual — Feature #10 security-headers ✅ DONE
+### Sesión actual — Feature #11 auth-hardening ✅ DONE
 
-1. **Spec author** — Creó `specs/security-headers/{requirements,design,tasks}.md` con 10 requirements EARS (R1–R10) y 8 tareas.
+1. **Spec author** — Creó `specs/auth-hardening/{requirements,design,tasks}.md` con 15 requirements EARS (R1–R15) y 22 tareas.
 2. **Aprobación humana** — Aprobado.
-3. **Implementer** — Implementó todas las tareas. Adaptación: Web Crypto API en vez de Node `crypto.randomBytes` (Edge Runtime compatibility). Build OK, 139/139 tests.
+3. **Implementer** — Implementó todas las tareas. Rate limiting (Upstash), password policy (Zod), email verification, Turnstile CAPTCHA, session management (7d/15min/5min), CSP actualizado.
 4. **Reviewer** — APPROVED. Trazabilidad R↔test verificada, todos los checkpoints pasan.
 
 ## Próximo paso
 
-Feature #11: `auth-hardening` (pending, sdd: true) — Lanzar spec_author.
+Feature #12: `cookie-and-csrf-fixes` (pending, sdd: false) — Fix directo sin SDD.

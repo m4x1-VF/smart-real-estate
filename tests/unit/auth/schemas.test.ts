@@ -40,8 +40,8 @@ describe('signupSchema', () => {
     const result = signupSchema.safeParse({
       name: 'John Doe',
       email: 'john@example.com',
-      password: 'password123',
-      confirmPassword: 'password123',
+      password: 'Password1!',
+      confirmPassword: 'Password1!',
     });
     expect(result.success).toBe(true);
   });
@@ -50,8 +50,8 @@ describe('signupSchema', () => {
     const result = signupSchema.safeParse({
       name: 'John Doe',
       email: 'bad-email',
-      password: 'password123',
-      confirmPassword: 'password123',
+      password: 'Password1!',
+      confirmPassword: 'Password1!',
     });
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -78,8 +78,8 @@ describe('signupSchema', () => {
     const result = signupSchema.safeParse({
       name: 'John Doe',
       email: 'john@example.com',
-      password: 'password123',
-      confirmPassword: 'different',
+      password: 'Password1!',
+      confirmPassword: 'Different1!',
     });
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -92,8 +92,8 @@ describe('signupSchema', () => {
     const result = signupSchema.safeParse({
       name: '',
       email: 'john@example.com',
-      password: 'password123',
-      confirmPassword: 'password123',
+      password: 'Password1!',
+      confirmPassword: 'Password1!',
     });
     expect(result.success).toBe(false);
     if (!result.success) {

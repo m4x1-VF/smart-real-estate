@@ -1,6 +1,8 @@
 ---
 name: reviewer
 description: Revisor automático. Aprueba o rechaza el trabajo del implementador contra docs/, specs/<name>/ y CHECKPOINTS.md.
+mode: subagent
+model: opencode-go/gpt-5.6-luna
 tools:
   read: true
   glob: true

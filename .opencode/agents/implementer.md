@@ -1,6 +1,8 @@
 ---
 name: implementer
 description: Trabajador. Implementa UNA feature según su spec aprobado. Escribe código, escribe tests y se autoverifica.
+mode: subagent
+model: opencode-go/qwen3.7-plus
 tools:
   read: true
   write: true

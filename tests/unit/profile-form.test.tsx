@@ -92,9 +92,9 @@ describe('ProfileForm component', () => {
     const newPwdInput = screen.getByLabelText('New Password');
     const confirmPwdInput = screen.getByLabelText('Confirm New Password');
 
-    await user.type(currentPwdInput, 'oldPass123');
-    await user.type(newPwdInput, 'newPass456');
-    await user.type(confirmPwdInput, 'newPass456');
+    await user.type(currentPwdInput, 'oldPass123!');
+    await user.type(newPwdInput, 'NewPass456!');
+    await user.type(confirmPwdInput, 'NewPass456!');
 
     const changeButton = screen.getByRole('button', { name: /change password/i });
     await user.click(changeButton);
@@ -132,9 +132,9 @@ describe('ProfileForm component', () => {
     const newPwdInput = screen.getByLabelText('New Password');
     const confirmPwdInput = screen.getByLabelText('Confirm New Password');
 
-    await user.type(currentPwdInput, 'wrongPass');
-    await user.type(newPwdInput, 'newPass456');
-    await user.type(confirmPwdInput, 'newPass456');
+    await user.type(currentPwdInput, 'wrongPass1!');
+    await user.type(newPwdInput, 'NewPass456!');
+    await user.type(confirmPwdInput, 'NewPass456!');
 
     const changeButton = screen.getByRole('button', { name: /change password/i });
     await user.click(changeButton);

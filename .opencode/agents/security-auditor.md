@@ -1,6 +1,7 @@
 ---
 description: Performs security audits and identifies vulnerabilities
 mode: subagent
+model: opencode-go/deepSeek-v4-pro
 tools:
   write: false
   edit: false

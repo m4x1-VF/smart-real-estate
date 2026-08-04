@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { passwordComplexity } from '@/lib/auth/schemas';
 
 export const updateProfileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -7,7 +8,7 @@ export const updateProfileSchema = z.object({
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    newPassword: passwordComplexity,
     confirmPassword: z.string().min(1, 'Please confirm your new password'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

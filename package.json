@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@better-auth/infra": "^0.3.7",
+    "@marsidev/react-turnstile": "^1.5.4",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.1",
     "better-auth": "^1.6.25",
     "cloudinary": "^2.10.0",
     "kysely-postgres-js": "^3.0.0",

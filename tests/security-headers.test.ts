@@ -7,6 +7,24 @@ vi.mock('better-auth/cookies', () => ({
   getSessionCookie: (...args: unknown[]) => getSessionCookieMock(...args),
 }));
 
+// Mock server-only (no-op)
+vi.mock('server-only', () => ({}));
+
+// Mock rate limiters
+vi.mock('@/lib/rate-limit', () => ({
+  loginRateLimit: {
+    limit: vi.fn().mockResolvedValue({ success: true, remaining: 5 }),
+  },
+  signupRateLimit: {
+    limit: vi.fn().mockResolvedValue({ success: true, remaining: 3 }),
+  },
+}));
+
+// Mock turnstile verification
+vi.mock('@/lib/turnstile', () => ({
+  verifyTurnstileToken: vi.fn().mockResolvedValue(true),
+}));
+
 function createRequest(pathname: string): NextRequest {
   const url = new URL(pathname, 'http://localhost:3000');
   return new NextRequest(url);
