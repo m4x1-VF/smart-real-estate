@@ -101,6 +101,7 @@ const Navbar = async () => {
                       }
                       alt="Profile"
                       fill
+                      sizes="36px"
                       className="object-cover"
                     />
                   </div>

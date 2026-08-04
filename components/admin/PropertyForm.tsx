@@ -493,6 +493,7 @@ export default function PropertyForm({ initialData, t }: PropertyFormProps) {
                       src={url}
                       alt={`Property image ${index + 1}`}
                       fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
                       className="object-cover"
                     />
                     {uploadingIndices.has(index) && (

@@ -242,6 +242,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                 src={avatarSrc}
                 alt="Avatar"
                 fill
+                sizes="96px"
                 className="object-cover"
               />
               {avatarLoading && (

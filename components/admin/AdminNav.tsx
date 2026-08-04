@@ -118,6 +118,7 @@ export default function AdminNav({ user, t }: AdminNavProps) {
                     src={avatarUrl}
                     alt={user.email || 'Admin'}
                     fill
+                    sizes="32px"
                     className="object-cover"
                   />
                 </div>

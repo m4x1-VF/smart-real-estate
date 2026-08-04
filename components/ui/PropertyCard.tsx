@@ -24,6 +24,7 @@ const PropertyCard = ({ property, isFavorited = false, dict }: PropertyCardProps
             src={property.images[0]}
             alt={property.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
