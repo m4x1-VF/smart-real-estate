@@ -1,17 +1,21 @@
 # Sesión actual
 
-- **Feature en curso:** Ninguna (feature #11 completada)
-- **Última sesión:** 2026-08-03
+- **Feature en curso:** #12 cookie-and-csrf-fixes ✅ DONE
+- **Última sesión:** 2026-08-04
 
 ## Bitácora
 
-### Sesión actual — Feature #11 auth-hardening ✅ DONE
+### Feature #12 cookie-and-csrf-fixes ✅ DONE
 
-1. **Spec author** — Creó `specs/auth-hardening/{requirements,design,tasks}.md` con 15 requirements EARS (R1–R15) y 22 tareas.
-2. **Aprobación humana** — Aprobado.
-3. **Implementer** — Implementó todas las tareas. Rate limiting (Upstash), password policy (Zod), email verification, Turnstile CAPTCHA, session management (7d/15min/5min), CSP actualizado.
-4. **Reviewer** — APPROVED. Trazabilidad R↔test verificada, todos los checkpoints pasan.
+1. **Cookie NEXT_LOCALE** — Movida de `document.cookie` (client-side) a server action `setLocaleCookie()` con flags `Secure; SameSite=Lax; Path=/`.
+2. **bodySizeLimit** — Reducido de `10mb` a `2mb` en `next.config.ts`.
+3. **Tests** — 29 archivos, 173 tests verdes.
+
+### Bugfix: Social auth + rate limiting
+
+- Excluidos endpoints de social auth (`/api/auth/sign-in/social`, `/api/auth/callback/*`) de rate limiting y Turnstile en middleware.
+- Rate limiter ahora es `null` cuando Redis no está configurado (en vez de fallar).
 
 ## Próximo paso
 
-Feature #12: `cookie-and-csrf-fixes` (pending, sdd: false) — Fix directo sin SDD.
+Feature #13: `admin-auth-refactor` (pending, sdd: true) — Refactor de autorización admin.

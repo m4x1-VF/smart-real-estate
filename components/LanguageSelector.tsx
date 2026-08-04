@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import { setLocaleCookie } from '@/app/locale-actions';
 
 export default function LanguageSelector({
   currentLocale,
@@ -11,11 +12,13 @@ export default function LanguageSelector({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newLocale = e.target.value;
 
-    // Set cookie valid for 1 year
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    // Set cookie server-side with secure flags
+    await setLocaleCookie(newLocale);
 
     startTransition(() => {
       router.refresh();
