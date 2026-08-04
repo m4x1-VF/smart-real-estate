@@ -1,13 +1,28 @@
 import PropertyForm from '@/components/admin/PropertyForm';
 import { getPropertyBySlug } from '@/lib/db/properties';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, forbidden } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { isAdmin } from '@/lib/db/admin';
 
 export default async function EditPropertyPage(props: {
   params: Promise<{ id: string }>;
 }) {
+  // Cache-Control defense in depth — set BEFORE any check so it's always present
+  const headersList = await headers();
+  headersList.set('Cache-Control', 'no-store, private');
+
+  // Defense in depth: page-level admin check
+  const session = await auth.api.getSession({ headers: headersList });
+  if (!session) {
+    return null;
+  }
+  if (!(await isAdmin(session.user.id))) {
+    forbidden();
+  }
+
   const params = await props.params;
   const property = await getPropertyBySlug(params.id);
 

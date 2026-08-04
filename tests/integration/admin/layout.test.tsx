@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   sql: vi.fn(),
+  isAdmin: vi.fn(),
   cookieGet: vi.fn().mockReturnValue(undefined),
   getDictionary: vi.fn(),
 }));
@@ -72,6 +73,11 @@ vi.mock('@/lib/db/client', () => ({
   getDb: () => mocks.sql,
 }));
 
+// Mock admin helper
+vi.mock('@/lib/db/admin', () => ({
+  isAdmin: (...args: unknown[]) => mocks.isAdmin(...args),
+}));
+
 // Mock i18n
 vi.mock('@/lib/i18n', () => ({
   getDictionary: (...args: unknown[]) => mocks.getDictionary(...args),
@@ -117,6 +123,7 @@ describe('AdminLayout (T17 → R6, R17)', () => {
   beforeEach(() => {
     mocks.getSession.mockReset();
     mocks.sql.mockReset();
+    mocks.isAdmin.mockReset();
     mocks.cookieGet.mockReset();
     mocks.cookieGet.mockReturnValue(undefined);
     mocks.getDictionary.mockReset();
@@ -141,8 +148,8 @@ describe('AdminLayout (T17 → R6, R17)', () => {
     mocks.getSession.mockResolvedValue({
       user: { id: 'u1', email: 'joe@example.com' },
     });
-    // Query returns a list of admins that does NOT include this user.
-    mocks.sql.mockResolvedValue([{ email: 'boss@example.com' }]);
+    // isAdmin returns false for this user
+    mocks.isAdmin.mockResolvedValue(false);
 
     await renderAdminLayout();
 
@@ -156,8 +163,8 @@ describe('AdminLayout (T17 → R6, R17)', () => {
     mocks.getSession.mockResolvedValue({
       user: { id: 'u1', email: 'admin@example.com' },
     });
-    // Query returns the admin list INCLUDING this user.
-    mocks.sql.mockResolvedValue([{ email: 'admin@example.com' }]);
+    // isAdmin returns true for this user
+    mocks.isAdmin.mockResolvedValue(true);
 
     await renderAdminLayout();
 
@@ -171,7 +178,7 @@ describe('AdminLayout (T17 → R6, R17)', () => {
     mocks.getSession.mockResolvedValue({
       user: { id: 'u1', email: 'admin@example.com' },
     });
-    mocks.sql.mockResolvedValue([{ email: 'admin@example.com' }]);
+    mocks.isAdmin.mockResolvedValue(true);
 
     await renderAdminLayout();
 
@@ -195,7 +202,7 @@ describe('AdminLayout (T17 → R6, R17)', () => {
     mocks.getSession.mockResolvedValue({
       user: { id: 'u1', email: 'joe@example.com' },
     });
-    mocks.sql.mockResolvedValue([{ email: 'boss@example.com' }]);
+    mocks.isAdmin.mockResolvedValue(false);
 
     await renderAdminLayout();
 

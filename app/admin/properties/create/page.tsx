@@ -1,9 +1,25 @@
 import PropertyForm from '@/components/admin/PropertyForm';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import { isAdmin } from '@/lib/db/admin';
+import { forbidden } from 'next/navigation';
 
 export default async function CreatePropertyPage() {
+  // Cache-Control defense in depth — set BEFORE any check so it's always present
+  const headersList = await headers();
+  headersList.set('Cache-Control', 'no-store, private');
+
+  // Defense in depth: page-level admin check
+  const session = await auth.api.getSession({ headers: headersList });
+  if (!session) {
+    return null;
+  }
+  if (!(await isAdmin(session.user.id))) {
+    forbidden();
+  }
+
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'es';
   const tForm = getDictionary(locale).dashboard.property_form;

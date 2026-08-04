@@ -3,9 +3,9 @@ import AdminNav from '@/components/admin/AdminNav';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getDb } from '@/lib/db/client';
 import { cookies } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
+import { isAdmin } from '@/lib/db/admin';
 
 export default async function AdminLayout({
   children,
@@ -20,19 +20,15 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  // Check admin role against Neon
-  const sql = getDb();
-  const admins = await sql<
-    { email: string }[]
-  >`SELECT u.email FROM user_roles ur JOIN public."user" u ON u.id = ur.user_id WHERE ur.role = 'admin'`;
-  const isAdmin = admins.some((a) => a.email === session.user.email);
+  // Check admin role via efficient query (React cache() deduplicates with pages)
+  const admin = await isAdmin(session.user.id);
 
   // Read locale and get the dashboard dictionary section.
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'es';
   const t = getDictionary(locale).dashboard;
 
-  if (!isAdmin) {
+  if (!admin) {
     return (
       <div className="bg-clear-day text-nordic font-display min-h-screen flex items-center justify-center">
         <div className="text-center">

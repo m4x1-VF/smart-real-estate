@@ -7,7 +7,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import LogoutButton from './LogoutButton';
 import { generateInitialsAvatar } from '@/lib/utils/avatar';
-import { isAdminUser } from '@/lib/db/admin';
+import { isAdmin } from '@/lib/db/admin';
 
 const Navbar = async () => {
   const cookieStore = await cookies();
@@ -17,7 +17,7 @@ const Navbar = async () => {
     headers: await headers(),
   });
   const user = session?.user;
-  const isAdmin = user ? await isAdminUser(user.email || '') : false;
+  const isAdminUser = user ? await isAdmin(user.id) : false;
 
   return (
     <nav className="sticky top-0 z-50 bg-clear-day/95 backdrop-blur-md border-b border-nordic/10">
@@ -78,7 +78,7 @@ const Navbar = async () => {
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-clear-day"></span>
             </button>
 
-            {isAdmin && (
+            {isAdminUser && (
               <Link
                 href="/admin/properties"
                 className="text-nordic hover:text-mosque transition-colors"

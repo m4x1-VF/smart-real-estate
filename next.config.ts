@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    authInterrupts: true,
   },
   headers: async () => [
     {

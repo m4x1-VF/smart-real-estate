@@ -9,8 +9,8 @@ import {
 import type { NewPropertyInput, PropertyType } from '@/types/db';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { getDb } from '@/lib/db/client';
 import { uploadImageToCloudinary } from '@/lib/cloudinary';
+import { isAdmin } from '@/lib/db/admin';
 
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
@@ -106,7 +106,16 @@ function generateSlug(title: string): string {
     .replace(/(^-|-$)+/g, '');
 }
 
+async function requireAdmin(): Promise<void> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error('Not authenticated');
+  const admin = await isAdmin(session.user.id);
+  if (!admin) throw new Error('Not authorized');
+}
+
 export async function saveProperty(formData: FormData): Promise<void> {
+  await requireAdmin();
+
   try {
     const id = getFormString(formData, 'id');
     const existingImages = getFormStringArray(formData, 'images');
@@ -143,6 +152,8 @@ export async function saveProperty(formData: FormData): Promise<void> {
 export async function togglePropertyActiveAction(
   formData: FormData,
 ): Promise<void> {
+  await requireAdmin();
+
   try {
     const id = getFormString(formData, 'id');
     const current = getFormBoolean(formData, 'is_active');
@@ -156,27 +167,10 @@ export async function togglePropertyActiveAction(
   }
 }
 
-async function verifyAdminSession(): Promise<void> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session) throw new Error('Not authenticated');
-
-  const sql = getDb();
-  const admins = await sql<
-    { email: string }[]
-  >`SELECT u.email FROM user_roles ur JOIN public."user" u ON u.id = ur.user_id WHERE ur.role = 'admin'`;
-  const isAdmin = admins.some((a) => a.email === session.user.email);
-
-  if (!isAdmin) {
-    throw new Error('Not authorized');
-  }
-}
-
 export async function uploadImage(
   formData: FormData,
 ): Promise<{ url: string }> {
-  await verifyAdminSession();
+  await requireAdmin();
 
   const file = formData.get('file');
   if (!file || !(file instanceof File)) {

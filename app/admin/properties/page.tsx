@@ -1,14 +1,30 @@
 import { listProperties, countProperties } from '@/lib/db/properties';
 import { togglePropertyActiveAction } from './actions';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import { isAdmin } from '@/lib/db/admin';
+import { forbidden } from 'next/navigation';
 
 const PAGE_SIZE = 10;
 
 export default async function AdminPropertiesPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  // Cache-Control defense in depth — set BEFORE any check so it's always present
+  const headersList = await headers();
+  headersList.set('Cache-Control', 'no-store, private');
+
+  // Defense in depth: page-level admin check
+  const session = await auth.api.getSession({ headers: headersList });
+  if (!session) {
+    return null;
+  }
+  if (!(await isAdmin(session.user.id))) {
+    forbidden();
+  }
+
   const searchParams = await props.searchParams;
   const page = Number(searchParams?.page) || 1;
 

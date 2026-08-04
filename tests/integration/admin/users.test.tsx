@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   toggleUserRole: vi.fn(),
   cookieGet: vi.fn().mockReturnValue(undefined),
   getDictionary: vi.fn(),
+  getSession: vi.fn(),
+  isAdmin: vi.fn(),
 }));
 
 // Mock next/headers
@@ -50,6 +52,20 @@ vi.mock('next/link', () => ({
 // Mock i18n
 vi.mock('@/lib/i18n', () => ({
   getDictionary: (...args: unknown[]) => mocks.getDictionary(...args),
+}));
+
+// Mock auth
+vi.mock('@/lib/auth', () => ({
+  auth: {
+    api: {
+      getSession: (...args: unknown[]) => mocks.getSession(...args),
+    },
+  },
+}));
+
+// Mock admin helper
+vi.mock('@/lib/db/admin', () => ({
+  isAdmin: (...args: unknown[]) => mocks.isAdmin(...args),
 }));
 
 // Mock DB client — getDb() returns a fake `sql` template literal.
@@ -126,6 +142,12 @@ describe('AdminUsersPage (T16 → R14, R6, R3)', () => {
     mocks.cookieGet.mockReturnValue(undefined);
     mocks.getDictionary.mockReset();
     mocks.getDictionary.mockReturnValue({ dashboard: DICT });
+    mocks.getSession.mockReset();
+    mocks.getSession.mockResolvedValue({
+      user: { id: 'u-admin', email: 'admin@example.com' },
+    });
+    mocks.isAdmin.mockReset();
+    mocks.isAdmin.mockResolvedValue(true);
   });
 
   afterEach(() => {

@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => {
     toggleAction: vi.fn(),
     cookieGet: vi.fn().mockReturnValue(undefined),
     getDictionary: vi.fn(),
+    getSession: vi.fn(),
+    isAdmin: vi.fn(),
   };
 });
 
@@ -53,6 +55,20 @@ vi.mock('next/link', () => ({
 // Mock i18n
 vi.mock('@/lib/i18n', () => ({
   getDictionary: (...args: unknown[]) => mocks.getDictionary(...args),
+}));
+
+// Mock auth
+vi.mock('@/lib/auth', () => ({
+  auth: {
+    api: {
+      getSession: (...args: unknown[]) => mocks.getSession(...args),
+    },
+  },
+}));
+
+// Mock admin helper
+vi.mock('@/lib/db/admin', () => ({
+  isAdmin: (...args: unknown[]) => mocks.isAdmin(...args),
 }));
 
 // Mock DB
@@ -144,6 +160,12 @@ describe('AdminPropertiesPage (T15 → R14, R6, R3)', () => {
     mocks.getDictionary.mockReturnValue({ dashboard: DICT });
     mocks.listProperties.mockResolvedValue({ properties: [mockProperty] });
     mocks.countProperties.mockResolvedValue(1);
+    mocks.getSession.mockReset();
+    mocks.getSession.mockResolvedValue({
+      user: { id: 'u-admin', email: 'admin@example.com' },
+    });
+    mocks.isAdmin.mockReset();
+    mocks.isAdmin.mockResolvedValue(true);
   });
 
   afterEach(() => {

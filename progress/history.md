@@ -567,6 +567,74 @@ Cuando un render muestra un valor de DB que tiene semántica user-facing (enum, 
 **Specs:** `specs/auth-hardening/{requirements,design,tasks}.md`
 **Reportes:** `progress/impl_auth-hardening.md`, `progress/review_auth-hardening.md`
 
+---
 
+## Sesión 2026-08-04 — Feature #12 cookie-and-csrf-fixes ✅ DONE
+
+**Objetivo:** Fixear flags de cookie de locale y reducir body size limit de server actions. Resolver hallazgos H-02 y M-06.
+
+### Cambios realizados
+
+1. **Cookie NEXT_LOCALE** (`components/LanguageSelector.tsx`, `app/locale-actions.ts`)
+   - Removido `document.cookie` (client-side, sin flags)
+   - Creada server action `setLocaleCookie()` con flags `Secure; SameSite=Lax; Path=/`
+   - Validación de locale contra lista permitida
+
+2. **bodySizeLimit** (`next.config.ts`)
+   - Reducido de `10mb` a `2mb`
+
+3. **Rate limiter condicional** (`lib/rate-limit.ts`, `middleware.ts`)
+   - `loginRateLimit` y `signupRateLimit` son `null` cuando Redis no está configurado
+   - Middleware skipea rate limiting si el limiter es `null`
+   - Social auth endpoints excluidos de rate limiting + Turnstile
+
+4. **Tests actualizados** (`tests/unit/auth/rate-limit.test.ts`)
+   - Tests con Redis configurado (6 tests)
+   - Tests sin Redis configurado (2 tests)
+
+### Verificación
+- Tests: 173/173 pasan (29 files)
+- Build: exitoso
+
+---
+
+## Sesión 2026-08-04 — Feature #13 admin-auth-refactor ✅ DONE
+
+**Objetivo:** Refactor de autorización admin: queries eficientes y verificación por página. Resolver hallazgos H-05, M-02 y M-03.
+
+### Cambios realizados
+
+1. **Helper isAdmin()** (`lib/db/admin.ts`)
+   - Query `SELECT 1 FROM user_roles WHERE user_id = $1 AND role = 'admin' LIMIT 1`
+   - Envuelto en React `cache()` para deduplicación
+   - Reemplaza `isAdminUser(email)` que hacía `SELECT ALL`
+
+2. **Layout refactor** (`app/admin/layout.tsx`)
+   - Usa `isAdmin(session.user.id)` en vez de query inline
+
+3. **Server actions refactor**
+   - `app/admin/users/actions.ts`: `toggleUserRole` usa `isAdmin()`
+   - `app/admin/properties/actions.ts`: `requireAdmin()` con `isAdmin()`, aplicado a `saveProperty` y `togglePropertyActiveAction`
+
+4. **Verificación por página (defense in depth)**
+   - Todas las admin pages llaman `forbidden()` si no es admin (HTTP 403 real)
+   - `app/admin/forbidden.tsx`: boundary con UI localizada
+
+5. **Cache-Control headers**
+   - `Cache-Control: no-store, private` al inicio de cada admin page
+   - Cubre: users, properties, create, edit
+
+6. **Tests** (7 nuevos, 196 total)
+   - `tests/unit/db/admin.test.ts`: query structure, export verification
+   - `tests/unit/db/admin-cache.test.ts`: deduplicación
+   - `tests/integration/admin/pages-forbidden.test.tsx`: 403 + Cache-Control para las 4 pages
+   - `tests/integration/admin/actions-auth.test.ts`: non-admin rejection
+
+### Verificación
+- Tests: 196/196 pasan (33 files)
+- Build: exitoso
+- authInterrupts habilitado en next.config.ts
+
+---
 
 

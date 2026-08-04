@@ -440,7 +440,7 @@
         "Cache-Control via headers() en cada page component"
       ],
       "sdd": true,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": 14,
